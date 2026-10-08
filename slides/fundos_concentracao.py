@@ -9,7 +9,7 @@ A, B, C = D["2010-12"], D["2018-12"], D["2026-09"]; U = D["um_cotista"]
 
 # ---- gráfico 1: curva de concentração (eixo x em log: fração dos fundos) ----
 import math
-W, H = 560, 300; ML, MR, MT, MB = 44, 16, 14, 34
+W, H = 560, 395; ML, MR, MT, MB = 44, 16, 14, 34
 xs = [0.001, 0.01, 0.1, 1.0]
 def sx(f): return ML + (math.log10(f) + 3) / 3 * (W - ML - MR)
 def sy(v): return MT + (1 - v) * (H - MT - MB)
@@ -25,7 +25,7 @@ for k, S in (("2010-12", A), ("2018-12", B), ("2026-09", C)):
 for q in (0.5, 0.75):
     n = C["fundos_para"][str(q)]; f = n / C["n"]
     lines.append(f'<circle cx="{sx(f):.1f}" cy="{sy(q):.1f}" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>'
-                 f'<text x="{sx(f)+8:.1f}" y="{sy(q)-6:.1f}" class="lab"><tspan class="num">{n} fundos</tspan> = {int(q*100)}% do PL</text>')
+                 f'<text x="{sx(f)-9:.1f}" y="{sy(q)-7:.1f}" class="lab" text-anchor="end"><tspan class="num">{n} fundos</tspan> = {int(q*100)}% do PL</text>')
 svg1 = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Curva de concentração do PL">{"".join(g)}{"".join(lines)}</svg>'
 leg1 = '<div class="legend"><span><i style="background:var(--s1)"></i>set/26</span><span><i style="background:var(--s2)"></i>dez/18</span><span><i style="background:var(--s3)"></i>dez/10</span></div>'
 
@@ -51,7 +51,7 @@ html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta n
 *{{box-sizing:border-box}} body{{margin:0;background:var(--surface);color:var(--ink);font:15px/1.35 Inter,system-ui,sans-serif}}
 .slide{{max-width:1240px;margin:0 auto;padding:28px 32px 20px;min-height:720px;display:flex;flex-direction:column;gap:14px}}
 header{{display:flex;justify-content:space-between;align-items:baseline;gap:16px}} header>div:first-child{{flex:1}} .kicker{{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}}
-h1{{font:600 29px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:12px;color:var(--ink3);border:1px solid var(--grid);border-radius:999px;padding:3px 10px;white-space:nowrap}}
+h1{{font:600 28px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:12px;color:var(--ink3);border:1px solid var(--grid);border-radius:999px;padding:3px 10px;white-space:nowrap}}
 .grid2{{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;align-items:stretch}} .col{{display:flex;flex-direction:column;gap:14px}}
 .card{{border:1px solid var(--grid);border-radius:10px;padding:12px 14px}} .card h2{{font:600 14px/1.2 Inter,system-ui,sans-serif;margin:0 0 6px;color:var(--ink2)}}
 .legend{{display:flex;gap:14px;font-size:12px;color:var(--ink2);margin:4px 0 0}} .legend i{{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}}
