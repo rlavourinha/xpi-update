@@ -16,8 +16,8 @@ def ticks_anos(ML, W, MR, H, MB):
     return "".join(out)
 
 # ---- A: PL diário (área) ----
-W, H, ML, MR, MT, MB = 760, 205, 40, 150, 14, 28
-ymax = 80
+W, H, ML, MR, MT, MB = 760, 180, 40, 150, 14, 28
+ymax = 60
 def syA(v): return MT + (1 - v / ymax) * (H - MT - MB)
 g = "".join(f'<line x1="{ML}" y1="{syA(t):.1f}" x2="{W-MR}" y2="{syA(t):.1f}" class="grid"/><text x="{ML-6}" y="{syA(t)+4:.1f}" class="ax" text-anchor="end">{t}</text>' for t in range(0, ymax + 1, 20))
 pts = " ".join(f"{xpos(i,ML,W,MR):.1f},{syA(v):.1f}" for i, v in enumerate(dd["pl_bi"]))
@@ -32,8 +32,8 @@ svgA = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="PL diár
 
 # ---- B: resultado diário (barras finas), desde 2024 ----
 i0 = next(i for i, d in enumerate(datas) if d >= "2024-01-01"); sub = dd["pnl_mi"][i0:]; subd = datas[i0:]; nb = len(sub)
-W2, H2, ML2, MR2, MT2, MB2 = 760, 196, 40, 150, 12, 28
-vmax = 1500
+W2, H2, ML2, MR2, MT2, MB2 = 760, 172, 40, 150, 12, 28
+vmax = 1000
 def syB(v): return MT2 + (1 - (v + vmax) / (2 * vmax)) * (H2 - MT2 - MB2)
 def xb(i): return ML2 + i / (nb - 1) * (W2 - ML2 - MR2)
 gb = "".join(f'<line x1="{ML2}" y1="{syB(t):.1f}" x2="{W2-MR2}" y2="{syB(t):.1f}" class="grid"/><text x="{ML2-6}" y="{syB(t)+4:.1f}" class="ax" text-anchor="end">{br(t/1000,1).replace("-", "−") if t else "0"}</text>' for t in range(-vmax, vmax + 1, 500))
@@ -49,8 +49,8 @@ ann = (f'<text x="{min(xb(imx)+6, W2-MR2-10):.1f}" y="{syB(min(vmax,sub[imx]))-4
 svgB = f'<svg viewBox="0 0 {W2} {H2}" width="100%" role="img" aria-label="Resultado diário dos fundos, R$ bi">{gb}{bars}{ann}<text x="{W2-MR2+10}" y="{syB(0)-14:.1f}" class="lab2">vol. diária 2026</text><text x="{W2-MR2+10}" y="{syB(0)+4:.1f}" class="lab"><tspan class="num">R$ {br(K["vol_dia_2026_mi"],0)} mi</tspan></text><text x="{W2-MR2+10}" y="{syB(0)+20:.1f}" class="lab2">{K["dias_neg_2026_pct"]}% dos dias negativos</text></svg>'
 
 # ---- C: resultado acumulado vs CDI sobre o mesmo capital ----
-W3, H3, ML3, MR3, MT3, MB3 = 420, 200, 36, 120, 14, 28
-cmax = 60
+W3, H3, ML3, MR3, MT3, MB3 = 420, 176, 36, 120, 14, 28
+cmax = 40
 def syC(v): return MT3 + (1 - v / cmax) * (H3 - MT3 - MB3)
 gc = "".join(f'<line x1="{ML3}" y1="{syC(t):.1f}" x2="{W3-MR3}" y2="{syC(t):.1f}" class="grid"/><text x="{ML3-6}" y="{syC(t)+4:.1f}" class="ax" text-anchor="end">{t}</text>' for t in range(0, cmax + 1, 20))
 l1 = " ".join(f"{xpos(i,ML3,W3,MR3):.1f},{syC(v):.1f}" for i, v in enumerate(dd["cum_pnl_bi"])); l2 = " ".join(f"{xpos(i,ML3,W3,MR3):.1f},{syC(v):.1f}" for i, v in enumerate(dd["cum_cdi_bi"]))
@@ -70,7 +70,7 @@ html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta n
 @media (prefers-color-scheme:dark){{:root:not([data-theme="light"]){{--surface:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--ink3:#8a8984;--grid:#2e2e2b;--s1:#3987e5;--s2:#d95926;--pos:#3987e5;--neg:#e66767;--green:#15301f;--greenink:#b7e4c7}}}}
 :root[data-theme="dark"]{{--surface:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--ink3:#8a8984;--grid:#2e2e2b;--s1:#3987e5;--s2:#d95926;--pos:#3987e5;--neg:#e66767;--green:#15301f;--greenink:#b7e4c7}}
 *{{box-sizing:border-box}} body{{margin:0;background:var(--surface);color:var(--ink);font:15px/1.35 Inter,system-ui,sans-serif}}
-.slide{{max-width:1240px;margin:0 auto;padding:28px 32px 20px;min-height:720px;display:flex;flex-direction:column;gap:14px}}
+.slide{{max-width:1240px;margin:0 auto;padding:24px 32px 16px;min-height:720px;display:flex;flex-direction:column;gap:12px}}
 header{{display:flex;justify-content:space-between;align-items:baseline;gap:16px}} header>div:first-child{{flex:1}} .kicker{{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}}
 h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:12px;color:var(--ink3);border:1px solid var(--grid);border-radius:999px;padding:3px 10px;white-space:nowrap}}
 .grid2{{display:grid;grid-template-columns:1.8fr 1fr;gap:20px;align-items:stretch}} .col{{display:flex;flex-direction:column;gap:14px}}
@@ -81,10 +81,10 @@ h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:1
 svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{stroke:var(--ink3);stroke-width:1}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--ink3)}} svg .lab{{font:12.5px Inter,system-ui,sans-serif;fill:var(--ink)}} svg .lab2{{font:11.5px Inter,system-ui,sans-serif;fill:var(--ink2)}} svg .num{{font-weight:600}}
 @media (max-width:860px){{.grid2{{grid-template-columns:1fr}}h1{{font-size:24px}}}}
 </style></head><body><div class="slide">
-<header><div><div class="kicker">parte 4 · qualidade do lucro</div><h1>Tesouraria da XP: 13 fundos, R$ {br(K["pl_set26_bi"],0)} bi e R$ {br(K["pnl_2025_bi"],0)} bi de resultado em 2025</h1></div><span class="chip">{VERSAO} · cotas até set/26</span></header>
+<header><div><div class="kicker">parte 4 · qualidade do lucro</div><h1>Tesouraria: R$ {br(K["pl_set26_bi"],0)} bi, R$ {br(K["pnl_2025_bi"],1)} bi em 2025 e abaixo do CDI em 2026</h1></div><span class="chip">{VERSAO} · cotas até set/26</span></header>
 <div class="grid2">
  <div class="col">
-  <div class="card"><h2>Patrimônio dos fundos geridos pela XP Investimentos CCTVM, R$ bi, diário</h2>{svgA}</div>
+  <div class="card"><h2>Patrimônio consolidado dos fundos geridos pela XP Investimentos CCTVM (sem cotas de um fundo no outro), R$ bi, diário</h2>{svgA}</div>
   <div class="card"><h2>Resultado diário dos fundos (variação do PL líquida de captações e resgates), R$ bi</h2>{svgB}</div>
  </div>
  <div class="col">
@@ -92,12 +92,12 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
   <div class="kpis">
    <div class="kpi"><b>R$ {br(K["pnl_2025_bi"])} bi</b><span>resultado em 2025, {br(x25)}x o CDI sobre o capital</span></div>
    <div class="kpi"><b>R$ {br(K["pnl_12m_bi"])} bi</b><span>últimos 12 meses, {br(x12)}x o CDI (R$ {br(K["cdi_12m_bi"])} bi)</span></div>
+   <div class="kpi"><b>R$ {br(K["pnl_3t26_bi"],2)} bi</b><span>no 3T26, {br(K["pnl_3t26_bi"]/K["cdi_3t26_bi"])}x o CDI (R$ {br(K["cdi_3t26_bi"],2)} bi); pior trimestre desde 2024</span></div>
    <div class="kpi"><b>{br(K["pl_set26_bi"]/K["securities_2q26_bi"]*100,0)}%</b><span>da carteira de títulos da XP (R$ {br(K["securities_2q26_bi"],0)} bi no 2T26)</span></div>
-   <div class="kpi"><b>R$ {br(D["xp_result_fin_bi"]["2025"])} bi</b><span>resultado contábil de instrumentos financeiros da XP em 2025</span></div>
   </div>
  </div>
 </div>
-<div class="green">O resultado dos fundos em 2025 (R$ {br(K["pnl_2025_bi"])} bi, antes do custo de funding) bate com o resultado contábil de instrumentos financeiros (R$ {br(D["xp_result_fin_bi"]["2025"])} bi) e é quase o dobro do EBT (R$ {br(D["xp_ebt_bi"]["2025"])} bi): o lucro da XP é decidido dentro desses fundos.</div>
-<div class="fonte">Fonte: CVM, informes diários de fundos (cota, PL, captação e resgate) dos fundos cujo gestor é a XP Investimentos CCTVM: Nimrod, Gladius, Scorpio, Aspis, Falx, Coliseu, Macadâmia, Kopis, Harpe, Javelin, Labris, XP Nix, Odysseus (todos com um cotista; 20-F os lista como entidades consolidadas e "proprietary treasury funds"). Resultado diário = ΔPL − captação + resgate; 40 dias de reorganização (cota e PL divergem) zerados. CDI sobre o capital = PL do dia anterior × CDI diário (BCB SGS 12). Resultado acumulado 2019–set/26: R$ {br(e1,1)} bi contra R$ {br(e2,1)} bi de CDI. Melhor dia: +R$ {br(K["melhor_dia_mi"]/1000,2)} bi ({K["melhor_dia"]}); pior: −R$ {br(abs(K["pior_dia_mi"])/1000,2)} bi ({K["pior_dia"]}).</div>
+<div class="green">O excesso sobre o CDI encolheu: R$ {br(AN["2024"]["pnl_bi"]-AN["2024"]["cdi_bi"])} bi em 2024, R$ {br(AN["2025"]["pnl_bi"]-AN["2025"]["cdi_bi"])} bi em 2025 e {br(K["pnl_2026_bi"]-K["cdi_2026_bi"]).replace("-","−")} bi em 2026 até setembro. Com Selic a 15%, o capital da tesouraria (R$ {br(K["pl_set26_bi"],0)} bi) já não rende mais que o CDI; o resultado de 2025 (R$ {br(K["pnl_2025_bi"])} bi) foi maior que o EBT da XP (R$ {br(D["xp_ebt_bi"]["2025"])} bi).</div>
+<div class="fonte">Fonte: CVM, informes diários de fundos (cota, PL, captação e resgate) dos fundos cujo gestor é a XP Investimentos CCTVM: Nimrod, Gladius, Scorpio, Aspis, Falx, Coliseu, Macadâmia, Kopis, Harpe, Javelin, Labris, XP Nix, Odysseus (todos com um cotista; 20-F os lista como entidades consolidadas e "proprietary treasury funds"). Consolidação: Gladius, Scorpio e Makhaira são 100% detidos por outro fundo do grupo (Coliseu até dez/25, Nimrod desde jan/26: R$ 24 bi em cotas no CDA de jun/26); PL e resultado deles são excluídos para não contar duas vezes (soma bruta dos 13: R$ {br(K["pl_bruto_set26_bi"],0)} bi e R$ {br(K["pnl_bruto_2025_bi"])} bi em 2025). Resultado diário = ΔPL − captação + resgate; dias de reorganização (cota e PL divergem) zerados. CDI sobre o capital = PL do dia anterior × CDI diário (BCB SGS 12). Resultado acumulado 2019–set/26: R$ {br(e1,1)} bi contra R$ {br(e2,1)} bi de CDI. Melhor dia: +R$ {br(K["melhor_dia_mi"]/1000,2)} bi ({K["melhor_dia"]}); pior: −R$ {br(abs(K["pior_dia_mi"])/1000,2)} bi ({K["pior_dia"]}).</div>
 </div></body></html>'''
 out = os.path.join(HERE, "xp_tesouraria.html"); open(out, "w", encoding="utf-8").write(html); print("ok", out)

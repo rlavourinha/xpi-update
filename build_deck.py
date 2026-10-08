@@ -3,11 +3,13 @@
 Navegação: scroll-snap, setas/PageDown, pontos à direita, deep-link por hash (#s2). Sem JS externo."""
 import os, re, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__))
-VERSAO = "v1.0"; DATA = dt.date.today().strftime("%d/%m/%Y")
+VERSAO = "v1.1"; DATA = dt.date.today().strftime("%d/%m/%Y")
 SLIDES = [  # (arquivo, título curto para os pontos)
     ("slides/industria_fundos.html", "Indústria de fundos"),
     ("slides/fundos_concentracao.html", "Concentração"),
+    ("slides/alocacao_clientes.html", "Alocação dos clientes"),
     ("slides/xp_tesouraria.html", "Tesouraria da XP"),
+    ("slides/xp_tesouraria_carteira.html", "Livros da tesouraria"),
 ]
 for f, _ in SLIDES: assert os.path.exists(os.path.join(HERE, f)), f
 def titulo(f):
@@ -41,7 +43,7 @@ ol li{{border:1px solid var(--grid);border-radius:10px;padding:12px 14px;font-si
 <nav class="dots" id="dots">{dots}</nav>
 <div class="deck" id="deck">
 <section class="sl" id="s1"><div class="capa"><div class="kicker">update · XP Inc. (XPBR31) · referência 2T26</div><h1>XPI Update</h1>
-<div class="sub">A indústria de fundos pela CVM, a concentração que não mudou em 15 anos, e os fundos onde mora a tesouraria da XP.</div>
+<div class="sub">A indústria de fundos pela CVM, para onde a pessoa física levou o dinheiro, e os fundos onde mora a tesouraria da XP: quanto rende, o que carrega e para quem é contraparte.</div>
 <span class="chip">{VERSAO} · {DATA} · fontes primárias: CVM, SEC, RI</span><ol>{agenda}</ol></div></section>
 {frames}
 </div>
