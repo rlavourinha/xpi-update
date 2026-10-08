@@ -1,0 +1,138 @@
+{
+ "_fontes": {
+  "anbima_pf_segmentos": "Boletim de private e varejo ANBIMA (api/boletim-de-private-e-varejos), edições fev/22, fev/23, fev/24, mar/25, mai/26; R$ bi, fim de ano; 2023 inclui previdência aberta (+790 bi reclassificada em dez/23)",
+  "anbima_varejo_snapshot": "Estatística de Varejo ago/2026 (varejo tradicional + alta renda), R$ mi e nº de contas",
+  "anbima_private_snapshot": "Estatística de Private ago/2026, R$ mi e nº de contas",
+  "b3_cpf_equities": "Book PF B3 (4T2021, 4T2024, 2T2025) — CPFs distintos com posição em renda variável (ações, FII, ETF, BDR), milhões; 2016–1Q20 do XPIMod (série antiga da B3 'CPFs na B3', milhares)",
+  "b3_total_cpf": "Book PF 4T2021: total de CPFs na B3 incl. renda fixa/Tesouro: dez/20 10,6 mi, set/21 11,8 mi, dez/21 13,1 mi",
+  "assessores": "CVM dados abertos AGENTE_AUTON (data/assessores_cvm_mensal.csv) — estoque de registros ativos",
+  "xp_retail_assets": "Historical Financials 2Q26 (KPIs: Retail Client's Assets), R$ bi, fim de período"
+ },
+ "anbima_pf_total_rs_bi": {
+  "2020": 4200,
+  "2021": 4500,
+  "2022": 5100,
+  "2023": 6500,
+  "2024": 7300,
+  "2025": 8500
+ },
+ "anbima_pf_segmentos_rs_bi": {
+  "2021": {
+   "private": 1719,
+   "varejo_tradicional": 1526,
+   "varejo_alta_renda": 1256,
+   "_nota": "shares 38,2/33,9/27,9% de 4,5 tri"
+  },
+  "2022": {
+   "private": 1928,
+   "varejo_tradicional": 1734,
+   "varejo_alta_renda": 1438,
+   "_nota": "shares 37,8/34,0/28,2% de 5,1 tri"
+  },
+  "2023": {
+   "private": 2119,
+   "varejo_tradicional": 2158,
+   "varejo_alta_renda": 2223,
+   "_nota": "shares 32,6/33,2/34,2% de 6,5 tri"
+  },
+  "2024": {
+   "private": 2300,
+   "varejo_tradicional": 2430,
+   "varejo_alta_renda": 2570
+  },
+  "2025": {
+   "private": 2630,
+   "varejo_tradicional": 2820,
+   "varejo_alta_renda": 3130
+  }
+ },
+ "anbima_pf_por_classe_rs_bi": {
+  "2024": {
+   "renda_fixa": 4320,
+   "previdencia": 1230,
+   "renda_variavel": 992
+  },
+  "2025": {
+   "renda_fixa": 5140,
+   "previdencia": 1540,
+   "renda_variavel": 1100,
+   "isentos": 1430,
+   "hibridos": 788,
+   "multimercados": 536,
+   "fii": 128.5,
+   "coe": 103.3,
+   "etf": 18.3
+  }
+ },
+ "b3_cpf_equities_mi": {
+  "2016": 0.564,
+  "2017": 0.62,
+  "2018": 0.813,
+  "2019": 1.665,
+  "1Q20": 2.243,
+  "2020": 2.7,
+  "2021": 4.2,
+  "2022": 5.0,
+  "2023": 5.0,
+  "2024": 5.3,
+  "mar25": 5.3,
+  "jun25": 5.4
+ },
+ "b3_contas_equities_mi": {
+  "2020": 3.2,
+  "2021": 5.0,
+  "2022": 5.9,
+  "2023": 5.9,
+  "2024": 6.0,
+  "jun25": 6.1,
+  "jun26_news": 6.45
+ },
+ "b3_posicao_pf_equities_rs_bi": {
+  "2021": 500.1,
+  "2022": 459.5,
+  "2023": 550.8,
+  "2024": 528.3,
+  "mar25": 550.0,
+  "jun25": 588.3
+ },
+ "b3_saldo_mediano_rs_mil": {
+  "2021": 2.85,
+  "2022": 1.19,
+  "2023": 2.13,
+  "2024": 1.97,
+  "jun25": 2.02
+ },
+ "b3_visao_geral_2T25": {
+  "acoes_cpf_mi": 4.0,
+  "acoes_custodia_bi": 385.4,
+  "fundos_listados_cpf_mi": 2.9,
+  "tesouro_direto_cpf_mi": 3.0,
+  "tesouro_direto_bi": 169.9,
+  "cdb_rdb_cpf_mi": 99.1,
+  "cdb_rdb_bi": 1333.1,
+  "captacao_bancaria_cpf_mi": 4.0,
+  "captacao_bancaria_bi": 1043.8,
+  "divida_corporativa_cpf_mil": 731.3,
+  "divida_corporativa_bi": 228.4,
+  "etf_cpf_mil": 639.0,
+  "bdr_cpf_mi": 1.0
+ },
+ "xp_retail_client_assets_rs_bi": {
+  "4Q18": 202.1,
+  "4Q19": 348.4,
+  "4Q20": 591.0,
+  "4Q21": 724.3,
+  "4Q22": 843.1,
+  "4Q23": 1011.5,
+  "4Q24": 1080.9,
+  "4Q25": 1260.1,
+  "2Q26": 1300.0
+ },
+ "xp_share_estimada_pct": {
+  "2021": 16.1,
+  "2022": 16.5,
+  "2023": 15.6,
+  "2024": 14.8,
+  "2025": 14.8
+ }
+}

@@ -1,0 +1,337 @@
+{
+ "2010-12": {
+  "n": 5786,
+  "pl_tri": 1.57,
+  "lorenz": [
+   [
+    0.001,
+    0.1266
+   ],
+   [
+    0.002,
+    0.2072
+   ],
+   [
+    0.005,
+    0.3361
+   ],
+   [
+    0.01,
+    0.4348
+   ],
+   [
+    0.02,
+    0.5328
+   ],
+   [
+    0.05,
+    0.6726
+   ],
+   [
+    0.1,
+    0.7845
+   ],
+   [
+    0.2,
+    0.8844
+   ],
+   [
+    0.3,
+    0.9309
+   ],
+   [
+    0.5,
+    0.9749
+   ],
+   [
+    0.75,
+    0.9946
+   ],
+   [
+    1.0,
+    1.0
+   ]
+  ],
+  "fundos_para": {
+   "0.25": 17,
+   "0.5": 92,
+   "0.75": 467,
+   "0.9": 1315
+  }
+ },
+ "2018-12": {
+  "n": 9216,
+  "pl_tri": 4.31,
+  "lorenz": [
+   [
+    0.001,
+    0.1767
+   ],
+   [
+    0.002,
+    0.26
+   ],
+   [
+    0.005,
+    0.3892
+   ],
+   [
+    0.01,
+    0.5037
+   ],
+   [
+    0.02,
+    0.607
+   ],
+   [
+    0.05,
+    0.7391
+   ],
+   [
+    0.1,
+    0.8309
+   ],
+   [
+    0.2,
+    0.909
+   ],
+   [
+    0.3,
+    0.9451
+   ],
+   [
+    0.5,
+    0.9784
+   ],
+   [
+    0.75,
+    0.9948
+   ],
+   [
+    1.0,
+    1.0
+   ]
+  ],
+  "fundos_para": {
+   "0.25": 17,
+   "0.5": 90,
+   "0.75": 499,
+   "0.9": 1687
+  }
+ },
+ "2026-09": {
+  "n": 15829,
+  "pl_tri": 9.21,
+  "lorenz": [
+   [
+    0.001,
+    0.1926
+   ],
+   [
+    0.002,
+    0.2723
+   ],
+   [
+    0.005,
+    0.4087
+   ],
+   [
+    0.01,
+    0.5135
+   ],
+   [
+    0.02,
+    0.6266
+   ],
+   [
+    0.05,
+    0.7611
+   ],
+   [
+    0.1,
+    0.8505
+   ],
+   [
+    0.2,
+    0.9224
+   ],
+   [
+    0.3,
+    0.9534
+   ],
+   [
+    0.5,
+    0.9816
+   ],
+   [
+    0.75,
+    0.9958
+   ],
+   [
+    1.0,
+    1.0
+   ]
+  ],
+  "fundos_para": {
+   "0.25": 27,
+   "0.5": 145,
+   "0.75": 730,
+   "0.9": 2485
+  }
+ },
+ "um_cotista": {
+  "n": 7513,
+  "pl_tri": 2.53,
+  "n_tot": 15829,
+  "pl_tot": 9.21,
+  "por_classe": {
+   "Ações": [
+    1032,
+    190
+   ],
+   "Cambial": [
+    7,
+    1
+   ],
+   "Multimercado": [
+    4448,
+    938
+   ],
+   "Renda Fixa": [
+    2013,
+    1402
+   ]
+  },
+  "faixas": {
+   "até 50 mi": [
+    4207,
+    87
+   ],
+   "50 mi–500 mi": [
+    2621,
+    399
+   ],
+   "500 mi–5 bi": [
+    610,
+    830
+   ],
+   "acima de 5 bi": [
+    75,
+    1216
+   ]
+  }
+ },
+ "top10": [
+  {
+   "gestor": "BB GESTAO DE RECURSOS DTVM S",
+   "classe": "Renda Fixa",
+   "pl_bi": 284.1,
+   "cotistas": 250
+  },
+  {
+   "gestor": "BB GESTAO DE RECURSOS DTVM S",
+   "classe": "Renda Fixa",
+   "pl_bi": 192.7,
+   "cotistas": 1
+  },
+  {
+   "gestor": "BB GESTAO DE RECURSOS DTVM S",
+   "classe": "Renda Fixa",
+   "pl_bi": 156.5,
+   "cotistas": 1
+  },
+  {
+   "gestor": "ITAU UNIBANCO ASSET MANAGEME",
+   "classe": "Renda Fixa",
+   "pl_bi": 144.5,
+   "cotistas": 41
+  },
+  {
+   "gestor": "BB GESTAO DE RECURSOS DTVM S",
+   "classe": "Renda Fixa",
+   "pl_bi": 135.0,
+   "cotistas": 66
+  },
+  {
+   "gestor": "CAIXA DISTRIBUIDORA DE TÍTUL",
+   "classe": "Renda Fixa",
+   "pl_bi": 107.6,
+   "cotistas": 29
+  },
+  {
+   "gestor": "BANCO BRADESCO S.A.",
+   "classe": "Renda Fixa",
+   "pl_bi": 104.3,
+   "cotistas": 10
+  },
+  {
+   "gestor": "Sicredi Asset Management Ltd",
+   "classe": "Renda Fixa",
+   "pl_bi": 89.6,
+   "cotistas": 75
+  },
+  {
+   "gestor": "BANCO BRADESCO S.A.",
+   "classe": "Renda Fixa",
+   "pl_bi": 86.8,
+   "cotistas": 42
+  },
+  {
+   "gestor": "BB GESTAO DE RECURSOS DTVM S",
+   "classe": "Renda Fixa",
+   "pl_bi": 77.7,
+   "cotistas": 14
+  }
+ ],
+ "top_gestores_bi": [
+  [
+   "BB GESTAO DE RECURSOS DTVM S.A",
+   1959
+  ],
+  [
+   "ITAU UNIBANCO ASSET MANAGEMENT LTD",
+   1248
+  ],
+  [
+   "BANCO BRADESCO S.A.",
+   992
+  ],
+  [
+   "CAIXA DISTRIBUIDORA DE TÍTULOS E V",
+   665
+  ],
+  [
+   "SANTANDER BRASIL GESTÃO DE RECURSO",
+   379
+  ],
+  [
+   "BTG PACTUAL ASSET MANAGEMENT S/A D",
+   260
+  ],
+  [
+   "Sicredi Asset Management Ltda.",
+   203
+  ],
+  [
+   "BTG PACTUAL GESTÃO E CONSULTORIA D",
+   199
+  ],
+  [
+   "KINEA INVESTIMENTOS LTDA.",
+   108
+  ],
+  [
+   "FUNDAÇÃO DOS ECONOMIÁRIOS FEDERAIS",
+   107
+  ],
+  [
+   "SAFRA ASSET CORRETORA DE TÍTULOS E",
+   102
+  ],
+  [
+   "XP VISTA ASSET MANAGEMENT LTDA.",
+   91
+  ]
+ ],
+ "xp_gestor_bi": 228
+}
