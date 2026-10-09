@@ -3,13 +3,14 @@
 Navegação: scroll-snap, setas/PageDown, pontos à direita, deep-link por hash (#s2). Sem JS externo."""
 import os, re, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__))
-VERSAO = "v1.3"; DATA = dt.date.today().strftime("%d/%m/%Y")
+VERSAO = "v1.4"; DATA = dt.date.today().strftime("%d/%m/%Y")
 SLIDES = [  # (arquivo, título curto para os pontos)
     ("slides/industria_fundos.html", "Indústria de fundos"),
     ("slides/fundos_concentracao.html", "Concentração"),
     ("slides/alocacao_clientes.html", "Alocação dos clientes"),
     ("slides/primeiro_turno.html", "1º turno na B3"),
     ("slides/auc_vs_fundos.html", "AuC vs fundos"),
+    ("slides/auc_vs_indice_pf.html", "AuC vs índice PF"),
     ("slides/xp_tesouraria.html", "Tesouraria da XP"),
     ("slides/xp_tesouraria_carteira.html", "Livros da tesouraria"),
 ]
