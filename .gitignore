@@ -32,3 +32,6 @@ data/*
 !data/anbima_alocacao_segmentos_anual.csv
 !data/anbima_alocacao_segmentos_anual_long.csv
 !data/anbima_alocacao_segmentos_serie.csv
+!data/anbima_alocacao_coletivas.csv
+!data/anbima_pf_total_mensal_2020.csv
+!escreve_*.py
