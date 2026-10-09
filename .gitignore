@@ -29,3 +29,6 @@ data/*
 !data/anbima_alocacao_pf.csv
 !data/anbima_alocacao_segmentos.csv
 !data/anbima_alocacao_segmentos_long.csv
+!data/anbima_alocacao_segmentos_anual.csv
+!data/anbima_alocacao_segmentos_anual_long.csv
+!data/anbima_alocacao_segmentos_serie.csv
