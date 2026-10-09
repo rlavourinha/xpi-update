@@ -24,3 +24,5 @@ data/*
 !data/xp_auc_apreciacao_implicita.csv
 !data/cvm_retorno_mensal_grupos_xp.csv
 !data/xp_equities_yield.csv
+!*.bat
+!*.ps1
