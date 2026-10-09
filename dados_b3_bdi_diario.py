@@ -119,12 +119,15 @@ def coleta_mensal():
             t = post("SharesInvesVolumMonthly", m.strftime("%Y-%m-%d"), n=100); vals = t.get("values") or []
             if vals:
                 raw("SharesInvesVolumMonthly", m.strftime("%Y-%m-%d"), t)
-                cols = [(c.get("friendlyNamePt") or c.get("name")) for c in t.get("columns") or []]
+                cols = t.get("columns") or []
+                segs = [c.get("friendlyNamePt") for c in cols if c.get("parentId") is None and c.get("friendlyNamePt") != "Tipos de investidores"]
                 for v in vals:
                     k = str(v[0]).strip().lower()
                     if "individua" in k or "física" in k or "fisica" in k:
                         r = {"mes": mes_ref, "consulta": m.strftime("%Y-%m-%d")}
-                        for c, x in zip(cols[1:], v[1:]): r[re.sub(r"\W+", "_", str(c)).strip("_").lower()[:40]] = x
+                        for i, sg in enumerate(segs):  # pares (R$, %) por segmento
+                            if 2 + 2 * i < len(v):
+                                key = re.sub(r"\W+", "_", str(sg)).strip("_").lower(); r[f"pf_{key}_rs"] = v[1 + 2 * i]; r[f"pf_{key}_pct"] = v[2 + 2 * i]
                         novos.append(r); have.add(mes_ref)
         m = (m.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
     if novos:
