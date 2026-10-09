@@ -26,3 +26,6 @@ data/*
 !data/xp_equities_yield.csv
 !*.bat
 !*.ps1
+!data/anbima_alocacao_pf.csv
+!data/anbima_alocacao_segmentos.csv
+!data/anbima_alocacao_segmentos_long.csv
