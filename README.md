@@ -72,3 +72,9 @@ _xpimod_dump.txt, _deck_antigo_2019.txt — dumps do material antigo da Genoa (r
 | Comparáveis listados (BTG, Itaú, Nubank, Inter, B3) | CVM `CIA_ABERTA/` (ITR/DFP/FRE) e releases | CSV ok |
 
 **Primeira prioridade (hipóteses escolhidas):** (1) plataforma cresce → ANBIMA varejo + B3 PF + CVM assessores; (2) qualidade do lucro → só a companhia (DFs); (3) competição/take rate → CVM assessores por instituição, IF.data (BTG/Inter/Nubank), ANBIMA fundos (taxas), CVM 179.
+
+## Monitor de atividade na B3 (DATs, minis, aluguel)
+
+- `dados_b3_bdi_diario.py` — coleta diária do Boletim Diário do Mercado (API pública `arquivos.b3.com.br/bdi/table`, janela de ~21 pregões): negócios em ações por mercado, negócios e contratos por derivativo (WIN, WDO, IND, DOL, DI1, DAP, BIT), contratos/dia com e sem minis, aluguel de ações negócio a negócio agregado por participante (fatia XP = XP+Rico+Clear, BTG+Necton, Itaú, Ágora, Inter) e participação da pessoa física. Saída: `data/b3_bdi_diario.csv` (1 linha/pregão), `data/b3_bdi_btc_participantes.json`, `data/b3_bdi_pf_mensal.csv`. **Rodar todo dia útil** (a janela anda; o script é idempotente). Brutos em `fontes/setor/b3/bdi/raw/`.
+- `data/b3_ri_operacional_mensal.csv` — série mensal longa do RI da B3 (planilha "dados operacionais", `fontes/setor/b3/ri/`): ADV de derivativos por produto e RPC desde 2005 (minis convertidos em contratos padrão dentro de índices/câmbio), ADTV de ações por mercado desde 2000, participação PF/institucional/estrangeiro desde 1999, aluguel de ações (volume, nº de operações, estoque) desde 2000.
+- `monitor-investimentos/data/b3_volume_diario.csv` — negócios/dia em ações pelo COTAHIST desde 2019 (nowcast dos DATs: corr 0,69 em variação t/t).

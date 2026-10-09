@@ -17,3 +17,10 @@ data/*
 !dados_*.py
 !agrega_*.py
 !baixa_*.py
+!data/b3_*.csv
+!data/b3_bdi_btc_participantes.json
+!data/schwab_client_assets_mensal.csv
+!data/xp_auc_nowcast.csv
+!data/xp_auc_apreciacao_implicita.csv
+!data/cvm_retorno_mensal_grupos_xp.csv
+!data/xp_equities_yield.csv
