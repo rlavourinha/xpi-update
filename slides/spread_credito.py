@@ -37,7 +37,9 @@ pts = " ".join(f"{X(d):.1f},{Y(min(smax,v)):.1f}" for d, v in idx)
 g += f'<polyline points="{pts}" fill="none" stroke="var(--s1)" stroke-width="1.6" stroke-linejoin="round"/>'
 for d, v in anb: g += f'<circle cx="{X(d):.1f}" cy="{Y(v):.1f}" r="2.6" fill="var(--s3)"/>'
 for d, v, lab, dx in [(dt.date(2020, 4, 30), 5.74, "abr/20: 5,74", -6), (dt.date(2023, 3, 31), 3.02, "mar/23 (Americanas): 3,02", -6), (dt.date(2025, 10, 31), 1.31, "out/25: 1,31", -6), (dt.date(2026, 4, 30), 1.69, "30/04/26: 1,69", -6)]:
-    g += f'<text x="{X(d)+dx:.1f}" y="{Y(v)-8 if lab[:6]!="out/25" else Y(v)+18:.1f}" class="lab2" text-anchor="{"start" if dx>0 else "end"}">{lab}</text>'
+    # rótulo acima da linha: y pelo máximo da série no vão horizontal que o texto ocupa (~5,8 un./caractere), p/ não cruzar picos próximos (ex.: abr/26 = 2,04)
+    xa, xb = sorted((X(d) + dx, X(d) + dx + (1 if dx > 0 else -1) * len(lab) * 5.8)); vtop = max([v] + [w for e, w in idx if xa <= X(e) <= xb])
+    g += f'<text x="{X(d)+dx:.1f}" y="{Y(min(smax,vtop))-8 if lab[:6]!="out/25" else Y(v)+18:.1f}" class="lab2" text-anchor="{"start" if dx>0 else "end"}">{lab}</text>'
 g += f'<text x="{X(anb[-1][0])-6:.1f}" y="{Y(anb[-1][1])+16:.1f}" class="lab2" text-anchor="end">ANBIMA, mediana DI+: {br(anb[-1][1],2)}</text>'
 svgA = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Spread de crédito privado sobre o CDI, diário, 2019 a 2026">{g}</svg>'
 
