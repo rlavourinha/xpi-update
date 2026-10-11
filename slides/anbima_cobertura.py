@@ -5,9 +5,9 @@ e data/anbima_pf_total_mensal_2020.csv. Gera slides/anbima_cobertura.html (diagn
 import os, datetime as dt, pandas as pd
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
 E = pd.read_csv(os.path.join(DATA, "anbima_alocacao_segmentos_long.csv")); A = pd.read_csv(os.path.join(DATA, "anbima_alocacao_segmentos_anual_long.csv"))
-C = pd.read_csv(os.path.join(DATA, "anbima_alocacao_coletivas.csv")); T = pd.read_csv(os.path.join(DATA, "anbima_pf_total_mensal_2020.csv"))
+C = pd.read_csv(os.path.join(DATA, "anbima_alocacao_coletivas.csv")); T = pd.read_csv(os.path.join(DATA, "anbima_pf_total_mensal_2020.csv")); U = pd.read_csv(os.path.join(DATA, "anbima_alocacao_usuario_long.csv"))
 SEGS = [("varejo_tradicional", "Varejo tradicional"), ("varejo_alta_renda", "Varejo alta renda"), ("private", "Private")]
-pts = {s: {"edicao": sorted(E[E.seg == s].data.unique()), "anexo": sorted(A[A.seg == s].ano.unique() * 100 + 12), "coletiva": sorted(C[C.seg == s].data.unique())} for s, _ in SEGS}
+pts = {s: {"edicao": sorted(set(E[E.seg == s].data.unique()) | set(U[U.seg == s].data.unique())), "anexo": sorted(A[A.seg == s].ano.unique() * 100 + 12), "coletiva": sorted(C[C.seg == s].data.unique())} for s, _ in SEGS}
 def t(d): y, m = divmod(int(d), 100); return y + (m - 0.5) / 12
 X0, X1 = 2013.5, 2026.9; W, H = 1180, 250; ML, MR, MT, MB = 150, 20, 34, 30
 def X(v): return ML + (v - X0) / (X1 - X0) * (W - ML - MR)
@@ -50,14 +50,14 @@ svg{{display:block}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--in
 table{{border-collapse:collapse;width:100%;font-size:12.5px}} th,td{{padding:4px 10px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}} th{{color:var(--ink3);font-weight:500;font-size:12px}} td:first-child{{font-weight:600;white-space:nowrap}}
 .ok{{color:var(--greenink)}} .green{{background:var(--green);color:var(--greenink);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:500}} .fonte{{font-size:11px;color:var(--ink3)}}
 </style></head><body><div class="slide">
-<header><div><div class="kicker">anbima · alocação da pessoa física · cobertura da base</div><h1>Dezembros completos desde 2013; meses soltos faltam em 2019-20 e 2024-26</h1></div><span class="chip">{VERSAO}</span></header>
+<header><div><div class="kicker">anbima · alocação da pessoa física · cobertura da base</div><h1>Com a sua compilação, a série mensal fecha de mar/19 a set/25</h1></div><span class="chip">{VERSAO}</span></header>
 {"".join(svg)}
-<div class="leg"><span><i class="sw" style="background:var(--s1)"></i>Anexo do Boletim (dezembros, série revisada)</span><span><i class="sw b" style="background:var(--s2)"></i>Edição mensal da Estatística (o seu Excel)</span><span><i class="sw d" style="background:var(--s3)"></i>Coletiva em PDF (% por produto × total)</span></div>
+<div class="leg"><span><i class="sw" style="background:var(--s1)"></i>Anexo do Boletim (dezembros, série revisada)</span><span><i class="sw b" style="background:var(--s2)"></i>Edição mensal da Estatística (minha coleta + a sua compilação)</span><span><i class="sw d" style="background:var(--s3)"></i>Coletiva em PDF (% por produto × total)</span></div>
 <table><tr><th>fonte</th><th>abertura por produto</th><th>regiões / UF</th><th>nº de contas</th><th>observação</th></tr>
 <tr><td>Anexo do Boletim</td><td class="ok">completa: 25 instrumentos por segmento</td><td>por região (Págs. 7-10) e por UF na "Base Varejo"</td><td>por segmento e região (Págs. 11-15)</td><td>só dezembro; cada edição reapresenta 2013→ revisado; previdência do varejo só desde dez/23</td></tr>
 <tr><td>Edição mensal (seu Excel)</td><td class="ok">completa: mesmo layout do seu arquivo de dez/16</td><td class="ok">SP capital/interior, RJ, MG, ES, Sul, CO, NE, N</td><td class="ok">por produto e região</td><td>varejo: {len(pts["varejo_tradicional"]["edicao"])} meses (sem nenhuma edição em {", ".join(map(str, falta["Varejo tradicional"])) or "—"}); private: {len(pts["private"]["edicao"])} meses, com pelo menos uma edição em todo ano; 2014-15 com classes agregadas</td></tr>
 <tr><td>Coletiva em PDF</td><td>parcial: 7 produtos no varejo, 9 no private; "demais" fechado</td><td>não</td><td>só total</td><td>jun/16 a jun/20; legenda conferida contra as edições de mar/17 e jun/19</td></tr></table>
-<div class="green">Para a análise por produto, a resposta é sim para todos os anos: há dezembro completo de 2013 a 2025 nos três segmentos. O que falta são os meses intermediários de 2019-20 (só as coletivas semestrais) e de 2024-26 (a ANBIMA deixou de guardar edições antigas no site novo; só o que o Wayback capturou). Regiões e número de contas existem apenas nas edições e nos anexos anuais.</div>
-<div class="fonte">Fontes: ANBIMA, Estatísticas de Varejo e de Private (edições 2014-2026, recuperadas do Wayback, do portal antigo, do site atual e dos seus arquivos de dez/16), Anexo do Boletim de Private e Varejo (2018-2025) e coletivas de imprensa (2017-2024). Scripts: dados_anbima_alocacao_*.py.</div>
+<div class="green">Dezembro completo de 2013 a 2025 pelo anexo, e, com a compilação mensal que você guardou (dez/16, dez/17, mar/18, set/18, dez/18 e todo mês de mar/19 a set/25, mais dez/25, mar/26 e ago/26), o varejo tradicional, a alta renda e o private têm abertura completa por produto mês a mês. Só faltam out/25, nov/25, jan-fev/26 e abr-jul/26.</div>
+<div class="fonte">Fontes: ANBIMA, Estatísticas de Varejo e de Private (edições 2014-2026, recuperadas do Wayback, do portal antigo, do site atual, e a compilação mensal do usuário "ANBIMA Historical Distribution AuC.xlsx"), Anexo do Boletim de Private e Varejo (2018-2025) e coletivas de imprensa (2017-2024). Scripts: dados_anbima_alocacao_*.py.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "anbima_cobertura.html"); open(out, "w", encoding="utf-8").write(html); print("ok", out, {s: {k: len(v) for k, v in p.items()} for s, p in pts.items()}, falta)

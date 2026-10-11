@@ -38,3 +38,5 @@ data/*
 !data/xp_auc_gap_vs_curva_accrual.csv
 !data/xp_sensibilidade_juros.csv
 !data/anbima_emissoes_credito_tri.csv
+!data/anbima_alocacao_usuario.csv
+!data/anbima_alocacao_usuario_long.csv
