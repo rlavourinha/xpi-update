@@ -40,7 +40,7 @@ for d, v, lab, dx in [(dt.date(2020, 4, 30), 5.74, "abr/20: 5,74", -6), (dt.date
     # rótulo acima da linha: y pelo máximo da série no vão horizontal que o texto ocupa (~5,8 un./caractere), p/ não cruzar picos próximos (ex.: abr/26 = 2,04)
     xa, xb = sorted((X(d) + dx, X(d) + dx + (1 if dx > 0 else -1) * len(lab) * 5.8)); vtop = max([v] + [w for e, w in idx if xa <= X(e) <= xb])
     g += f'<text x="{X(d)+dx:.1f}" y="{Y(min(smax,vtop))-8 if lab[:6]!="out/25" else Y(v)+18:.1f}" class="lab2" text-anchor="{"start" if dx>0 else "end"}">{lab}</text>'
-g += f'<text x="{X(anb[-1][0])-6:.1f}" y="{Y(anb[-1][1])+16:.1f}" class="lab2" text-anchor="end">ANBIMA, mediana DI+: {br(anb[-1][1],2)}</text>'
+g += f'<text x="{X(anb[-1][0])-6:.1f}" y="{Y(anb[-1][1])+20:.1f}" class="lab2" text-anchor="end">ANBIMA, mediana DI+: {br(anb[-1][1],2)}</text>'  # +20 (não +16): folga de 4 px abaixo do rótulo out/25, que também fica abaixo da linha
 svgA = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Spread de crédito privado sobre o CDI, diário, 2019 a 2026">{g}</svg>'
 
 # ---- B: receita de renda fixa do varejo ----
