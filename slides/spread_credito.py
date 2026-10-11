@@ -5,7 +5,7 @@ Dados: data/idex_cdi_spread_diario.csv, data/anbima_debentures_spread_diario.csv
 data/_xp_tes_pnl_diario.csv (Scorpio). Gera slides/spread_credito.html."""
 import csv, os, json, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v1.7 · 11/10/2026"
+VERSAO = "v1.8 · 11/10/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 idx = [(dt.date.fromisoformat(r["data"]), float(r["spread_exdist"])) for r in csv.DictReader(open(os.path.join(DATA, "idex_cdi_spread_diario.csv"), encoding="utf-8")) if r["spread_exdist"] and r["data"] >= "2019-01-01"]
 anb = [(dt.date.fromisoformat(r["data"]), float(r["di_mediana"])) for r in csv.DictReader(open(os.path.join(DATA, "anbima_debentures_spread_diario.csv"), encoding="utf-8")) if r["di_mediana"]]
@@ -87,7 +87,7 @@ h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:1
 svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{stroke:var(--ink3);stroke-width:1}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--ink3)}} svg .lab2{{font:11px Inter,system-ui,sans-serif;fill:var(--ink2)}} svg .v{{font:600 11px Inter,system-ui,sans-serif;fill:var(--ink)}}
 @media (max-width:860px){{.grid2{{grid-template-columns:1fr}}h1{{font-size:24px}}}}
 </style></head><body><div class="slide">
-<header><div><div class="kicker">parte 3 · companhia · renda fixa do varejo</div><h1>A renda fixa caiu com o primário seco; a marcação custou R$ 20 mi por tri</h1></div><span class="chip">{VERSAO}</span></header>
+<header><div><div class="kicker">parte 3 · companhia · renda fixa do varejo</div><h1>R$ 420 mi de marcação no 1S26: spread de crédito num livro de R$ 25 bi</h1></div><span class="chip">{VERSAO}</span></header>
 <div class="grid2">
  <div class="card"><h2>Spread de crédito privado sobre o CDI, % a.a., diário</h2><div class="legend"><span><i style="background:var(--s1)"></i>IDEX-CDI, média ponderada ex-estresse (JGP, até 30/04/26)</span><span><i style="background:var(--s3)"></i>ANBIMA, mediana das debêntures DI+ (coleta diária desde 30/09/26)</span><span><i style="background:var(--s2);opacity:.4"></i>1S26</span></div>{svgA}</div>
  <div class="col">
@@ -95,8 +95,8 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
   <div class="card"><h2>Emissões de debêntures, notas comerciais, CRI e CRA, R$ bi por trimestre (* 3T26 = jul-ago)</h2>{svgC}</div>
  </div>
 </div>
-<div class="green">Pela sensibilidade que a própria XP publica (R$ 0,2 mi por ponto-base na pré, R$ 0,1 a 0,3 mi no cupom de IPCA), os {br(float(CV["1Q26"]["dpre2y_bp"]),0)} bp de abertura da pré no 1T26 e os {br(float(CV["2Q26"]["dreal5y_bp"]),0)} bp da NTN-B no 2T26 custaram perto de R$ 20 mi por trimestre, não os R$ 250 mi que faltaram na receita; o que secou foi o primário, de R$ 219 bi no 4T25 para R$ 122 bi e R$ 109 bi, com Issuer Services de R$ 404 mi para R$ 186 mi. A curva fechou {br(-float(CV["3Q26"]["dpre2y_bp"]),0)} bp no 3T26 e mais 140 bp na semana do 1º turno.</div>
-<div class="fonte">Fonte: IDEX Analytics/JGP, arquivo público de composição do IDEX-CDI Geral (spread de compra ponderado pelo peso, excluídos papéis com spread acima de 10%; a série pública termina em 30/04/26); ANBIMA, taxas indicativas diárias de debêntures (mediana do spread DI+, {len(anb)} pregões desde 30/09/26, universo diferente do IDEX); XP RI, Historical Financials 2T26 (Retail Fixed Income) e release 2T26 ("impacto MtM em renda fixa"); ETTJ pré e real ANBIMA via monitor (fotografias de 02 e 09/10/26 para a semana do 1º turno); ITRs e 20-F, análise de sensibilidade da carteira de trading (cenário I, 1 bp); ANBIMA, Boletim de Mercado de Capitais (emissões domésticas); CVM, informes diários dos fundos da tesouraria.</div>
+<div class="green">No call do 2T26 a XP pôs número na marcação: abaixo de R$ 300 mi no 1T26, R$ 150 a 160 mi no 2T26, R$ 420 mi no semestre, e a causa foi spread de crédito, "mesmo em AAA e AA", no livro de facilitação e do banco de investimento. Juros não entram: a sensibilidade publicada é de R$ 0,2 mi por ponto-base, o livro está hedgeado. A conta fecha: R$ 21 a 25 bi de debêntures, CRI, CRA e dívida externa no balanço, duration de 3 anos e os {br(dsp["1Q26"]+dsp["2Q26"],0)} bp que o IDEX abriu de janeiro a abril dão R$ 200 mi; o resto é o livro do IB, mais longo e mais largo que o índice. Por cima disso, o primário secou: R$ 219 bi no 4T25 para R$ 122 bi e R$ 109 bi. Para o 3T26 a XP diz que reduziu o livro e não espera nova marcação.</div>
+<div class="fonte">Fonte: IDEX Analytics/JGP, arquivo público de composição do IDEX-CDI Geral (spread de compra ponderado pelo peso, excluídos papéis com spread acima de 10%; a série pública termina em 30/04/26); ANBIMA, taxas indicativas diárias de debêntures (mediana do spread DI+, {len(anb)} pregões desde 30/09/26, universo diferente do IDEX); XP RI, Historical Financials 2T26 (Retail Fixed Income) e release 2T26 ("impacto MtM em renda fixa"); ETTJ pré e real ANBIMA via monitor (fotografias de 02 e 09/10/26 para a semana do 1º turno); ITRs e 20-F, análise de sensibilidade da carteira de trading (cenário I, 1 bp) e nota de títulos (jun/26); teleconferências de resultados do 1T26 e 2T26 (transcrições); ANBIMA, Boletim de Mercado de Capitais (emissões domésticas); CVM, informes diários dos fundos da tesouraria.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "spread_credito.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| dsp", {k: round(v) for k, v in dsp.items() if k[2:] in ("25", "26")}, "| scorpio", {k: round(v) for k, v in sc.items() if k.endswith("26")})
