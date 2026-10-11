@@ -13,3 +13,11 @@ fit = df.dropna(); b, a = np.polyfit(fit.mercado_mi, fit.dats, 1); df["nowcast"]
 df["erro"] = df.dats - df.nowcast; df.round(3).to_csv(os.path.join(DATA, "xp_dats_nowcast.csv"))
 print(f"DATs = {a:.3f} + {b:.4f} x negócios/dia do mercado (mi) | r = {r:.2f} | erro-padrão {fit.eval('dats - (@a + @b*mercado_mi)').std():.2f} mi | n = {len(fit)}")
 print(df.tail(8).round(2).to_string())
+
+# ---- diário: DAT estimado por pregão = a + b x negócios do dia (mi), e pelo share da XP no último trimestre fechado ----
+ult = fit.index[-1]; share = fit.dats[ult] / fit.mercado_mi[ult]
+dd = pd.DataFrame({"negocios_mercado_mi": v.negocios / 1e6}); dd["dat_regressao"] = a + b * dd.negocios_mercado_mi; dd["dat_share"] = share * dd.negocios_mercado_mi
+dd["tri"] = dd.index.to_period("Q").astype(str); dd["media_tri_regressao"] = dd.groupby("tri").dat_regressao.transform("mean")
+dd.round(3).to_csv(os.path.join(DATA, "xp_dats_nowcast_diario.csv"))
+print(f"\nshare XP no {ult}: {share:.3f} negócio de varejo XP por negócio do mercado | diário (últimos 30 pregões):")
+print(dd.tail(30).drop(columns="tri").round(2).to_string())

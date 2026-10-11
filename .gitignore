@@ -42,3 +42,4 @@ data/*
 !data/anbima_alocacao_usuario_long.csv
 !nowcast_*.py
 !data/xp_dats_nowcast.csv
+!data/xp_dats_nowcast_diario.csv
