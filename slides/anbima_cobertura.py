@@ -9,24 +9,24 @@ C = pd.read_csv(os.path.join(DATA, "anbima_alocacao_coletivas.csv")); T = pd.rea
 SEGS = [("varejo_tradicional", "Varejo tradicional"), ("varejo_alta_renda", "Varejo alta renda"), ("private", "Private")]
 pts = {s: {"edicao": sorted(set(E[E.seg == s].data.unique()) | set(U[U.seg == s].data.unique())), "anexo": sorted(A[A.seg == s].ano.unique() * 100 + 12), "coletiva": sorted(C[C.seg == s].data.unique())} for s, _ in SEGS}
 def t(d): y, m = divmod(int(d), 100); return y + (m - 0.5) / 12
-X0, X1 = 2013.5, 2026.9; W, H = 1180, 250; ML, MR, MT, MB = 150, 20, 34, 30
+X0, X1 = 2012.5, 2026.9; W, H = 1180, 250; ML, MR, MT, MB = 150, 20, 34, 30  # X0 2012.5: a edição dez/12 do private fica dentro do eixo (antes caía sobre o rótulo da linha)
 def X(v): return ML + (v - X0) / (X1 - X0) * (W - ML - MR)
 ROWH = (H - MT - MB) / (len(SEGS) + 1)
 COR = {"anexo": "var(--s1)", "edicao": "var(--s2)", "coletiva": "var(--s3)"}
 svg = [f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Linha do tempo dos pontos de dados ANBIMA por segmento e fonte, 2013 a 2026">']
-for y in range(2014, 2027):
-    svg.append(f'<line x1="{X(y-1):.1f}" y1="{MT}" x2="{X(y-1):.1f}" y2="{H-MB}" stroke="var(--grid)" stroke-width="1"/>')
-    svg.append(f'<text x="{X(y-0.5):.1f}" y="{H-MB+16}" class="ax" text-anchor="middle">{y}</text>')
+for y in range(2012, 2027):  # gridline no início de cada ano; rótulo no centro da faixa do próprio ano (recortada nas pontas)
+    if y > X0: svg.append(f'<line x1="{X(y):.1f}" y1="{MT}" x2="{X(y):.1f}" y2="{H-MB}" stroke="var(--grid)" stroke-width="1"/>')
+    svg.append(f'<text x="{X((max(y, X0) + min(y + 1, X1)) / 2):.1f}" y="{H-MB+16}" class="ax" text-anchor="middle">{y}</text>')
 svg.append(f'<line x1="{X(X1):.1f}" y1="{MT}" x2="{X(X1):.1f}" y2="{H-MB}" stroke="var(--grid)" stroke-width="1"/>')
 for i, (s, nome) in enumerate(SEGS + [("pf_total", "Total PF (só o total)")]):
     yc = MT + ROWH * (i + 0.5)
     svg.append(f'<line x1="{ML}" y1="{yc:.1f}" x2="{W-MR}" y2="{yc:.1f}" stroke="var(--grid)" stroke-width="1" stroke-dasharray="2 4"/>')
     svg.append(f'<text x="{ML-10}" y="{yc+4:.1f}" class="lab" text-anchor="end">{nome}</text>')
     if s == "pf_total":
-        for d in T.data: svg.append(f'<rect x="{X(t(d))-2.5:.1f}" y="{yc-7:.1f}" width="5" height="14" fill="{COR["coletiva"]}" rx="1"/>')
+        for d in T.data: svg.append(f'<rect x="{X(t(d))-2:.1f}" y="{yc-7:.1f}" width="4" height="14" fill="{COR["coletiva"]}" rx="1"/>')
         continue
     for d in pts[s]["coletiva"]: svg.append(f'<rect x="{X(t(d))-5:.1f}" y="{yc-5:.1f}" width="10" height="10" fill="{COR["coletiva"]}" transform="rotate(45 {X(t(d)):.1f} {yc:.1f})"/>')
-    for d in pts[s]["edicao"]: svg.append(f'<rect x="{X(t(d))-2.5:.1f}" y="{yc-9:.1f}" width="5" height="18" fill="{COR["edicao"]}" rx="1"/>')
+    for d in pts[s]["edicao"]: svg.append(f'<rect x="{X(t(d))-2:.1f}" y="{yc-9:.1f}" width="4" height="18" fill="{COR["edicao"]}" rx="1"/>')
     for d in pts[s]["anexo"]: svg.append(f'<circle cx="{X(t(d)):.1f}" cy="{yc:.1f}" r="6.5" fill="{COR["anexo"]}" stroke="var(--surface)" stroke-width="1.5"/>')
     ne, na, nc = len(pts[s]["edicao"]), len(pts[s]["anexo"]), len(set(pts[s]["coletiva"]) - set(pts[s]["edicao"]) - set(pts[s]["anexo"]))
     svg.append(f'<text x="{W-MR}" y="{yc-12:.1f}" class="n" text-anchor="end">{na} dez · {ne} edições · {nc} coletivas</text>')
@@ -46,7 +46,7 @@ html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta n
 header{{display:flex;justify-content:space-between;align-items:baseline;gap:16px}} header>div:first-child{{flex:1}} .kicker{{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}}
 h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:12px;color:var(--ink3);border:1px solid var(--grid);border-radius:999px;padding:3px 10px;white-space:nowrap}}
 svg{{display:block}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--ink3)}} svg .lab{{font:600 13px Inter,system-ui,sans-serif;fill:var(--ink)}} svg .n{{font:11px Inter,system-ui,sans-serif;fill:var(--ink2)}}
-.leg{{display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--ink2)}} .leg span{{display:inline-flex;align-items:center;gap:7px}} .sw{{width:12px;height:12px;display:inline-block;border-radius:50%}} .sw.b{{border-radius:1px;width:5px;height:16px}} .sw.d{{border-radius:1px;transform:rotate(45deg);width:10px;height:10px}}
+.leg{{display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--ink2)}} .leg span{{display:inline-flex;align-items:center;gap:7px}} .sw{{width:12px;height:12px;display:inline-block;border-radius:50%}} .sw.b{{border-radius:1px;width:4px;height:16px}} .sw.d{{border-radius:1px;transform:rotate(45deg);width:10px;height:10px}}
 table{{border-collapse:collapse;width:100%;font-size:12.5px}} th,td{{padding:4px 10px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}} th{{color:var(--ink3);font-weight:500;font-size:12px}} td:first-child{{font-weight:600;white-space:nowrap}}
 .ok{{color:var(--greenink)}} .green{{background:var(--green);color:var(--greenink);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:500}} .fonte{{font-size:11px;color:var(--ink3)}}
 </style></head><body><div class="slide">
