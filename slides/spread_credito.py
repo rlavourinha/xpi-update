@@ -5,7 +5,7 @@ Dados: data/idex_cdi_spread_diario.csv, data/anbima_debentures_spread_diario.csv
 data/_xp_tes_pnl_diario.csv (Scorpio). Gera slides/spread_credito.html."""
 import csv, os, json, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v1.6 · 11/10/2026"
+VERSAO = "v1.7 · 11/10/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 idx = [(dt.date.fromisoformat(r["data"]), float(r["spread_exdist"])) for r in csv.DictReader(open(os.path.join(DATA, "idex_cdi_spread_diario.csv"), encoding="utf-8")) if r["spread_exdist"] and r["data"] >= "2019-01-01"]
 anb = [(dt.date.fromisoformat(r["data"]), float(r["di_mediana"])) for r in csv.DictReader(open(os.path.join(DATA, "anbima_debentures_spread_diario.csv"), encoding="utf-8")) if r["di_mediana"]]
@@ -56,21 +56,20 @@ for i, (q, v) in enumerate(zip(Q, RF)):
     if q.startswith("1Q"): g2 += f'<text x="{x+(bw-3)/2:.1f}" y="{H2-8}" class="ax" text-anchor="middle">20{q[2:]}</text>'
 svgB = f'<svg viewBox="0 0 {W2} {H2}" width="100%" role="img" aria-label="Receita de renda fixa do varejo da XP por trimestre, R$ milhões">{g2}</svg>'
 
-# ---- C: Δ spread e Δ pré 2 anos por trimestre ----
+# ---- C: emissões primárias de crédito privado (ANBIMA), R$ bi por trimestre ----
+EM = {r["tri"]: float(r["emissoes_rs_bi"]) for r in csv.DictReader(open(os.path.join(DATA, "anbima_emissoes_credito_tri.csv"), encoding="utf-8"))}
+QE = [q for q in EM if int(q[2:]) >= 22]
 W3, H3, ML3, MR3, MT3, MB3 = 440, 150, 40, 10, 18, 26
-cmin, cmax = -150, 360
-def Y3(v): return MT3 + (cmax - v) / (cmax - cmin) * (H3 - MT3 - MB3)
-bw3 = (W3 - ML3 - MR3) / len(QC)
-g3 = "".join(f'<line x1="{ML3}" y1="{Y3(t):.1f}" x2="{W3-MR3}" y2="{Y3(t):.1f}" class="grid"/><text x="{ML3-6}" y="{Y3(t)+4:.1f}" class="ax" text-anchor="end">{br(t,0)}</text>' for t in (-100, 0, 100, 200, 300))
-g3 += f'<line x1="{ML3}" y1="{Y3(0):.1f}" x2="{W3-MR3}" y2="{Y3(0):.1f}" class="base"/>'
-for i, q in enumerate(QC):
-    x0 = ML3 + i * bw3 + 1
-    for j, (v, col) in enumerate([(dsp.get(q), "var(--s1)"), (float(CV[q]["dpre2y_bp"]) if q in CV else None, "var(--ink3)")]):
-        if v is None: continue
-        v = max(cmin, min(cmax, v)); x = x0 + j * (bw3 - 2) / 2
-        g3 += f'<rect x="{x:.1f}" y="{min(Y3(0),Y3(v)):.1f}" width="{(bw3-2)/2-0.5:.1f}" height="{abs(Y3(v)-Y3(0)):.1f}" fill="{col}"/>'
-    if q.startswith("1Q"): g3 += f'<text x="{x0+bw3/2:.1f}" y="{H3-8}" class="ax" text-anchor="middle">20{q[2:]}</text>'
-svgC = f'<svg viewBox="0 0 {W3} {H3}" width="100%" role="img" aria-label="Variação trimestral do spread IDEX e da taxa pré de 2 anos, pontos-base">{g3}</svg>'
+emax = 250
+def Y3(v): return MT3 + (emax - v) / emax * (H3 - MT3 - MB3)
+bw3 = (W3 - ML3 - MR3) / len(QE)
+g3 = "".join(f'<line x1="{ML3}" y1="{Y3(t):.1f}" x2="{W3-MR3}" y2="{Y3(t):.1f}" class="grid"/><text x="{ML3-6}" y="{Y3(t)+4:.1f}" class="ax" text-anchor="end">{t}</text>' for t in (0, 100, 200))
+for i, q in enumerate(QE):
+    v = EM[q]; x = ML3 + i * bw3 + 1.5; hot = q in ("1Q26", "2Q26", "3Q26")
+    g3 += f'<rect x="{x:.1f}" y="{Y3(v):.1f}" width="{bw3-3:.1f}" height="{Y3(0)-Y3(v):.1f}" rx="2" fill="{"var(--s2)" if hot else "var(--s1)"}"{" opacity=\".55\"" if q=="3Q26" else ""}/>'
+    if q in ("4Q25", "1Q26", "2Q26", "3Q26"): g3 += f'<text x="{x+(bw3-3)/2:.1f}" y="{Y3(v)-4:.1f}" class="v" text-anchor="middle">{br(v,0)}{"*" if q=="3Q26" else ""}</text>'
+    if q.startswith("1Q"): g3 += f'<text x="{x+(bw3-3)/2:.1f}" y="{H3-8}" class="ax" text-anchor="middle">20{q[2:]}</text>'
+svgC = f'<svg viewBox="0 0 {W3} {H3}" width="100%" role="img" aria-label="Emissões primárias de debêntures, notas comerciais, CRI e CRA por trimestre, R$ bilhões">{g3}</svg>'
 html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spread de crédito e renda fixa da XP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -88,16 +87,16 @@ h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:1
 svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{stroke:var(--ink3);stroke-width:1}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--ink3)}} svg .lab2{{font:11px Inter,system-ui,sans-serif;fill:var(--ink2)}} svg .v{{font:600 11px Inter,system-ui,sans-serif;fill:var(--ink)}}
 @media (max-width:860px){{.grid2{{grid-template-columns:1fr}}h1{{font-size:24px}}}}
 </style></head><body><div class="slide">
-<header><div><div class="kicker">parte 3 · companhia · renda fixa do varejo</div><h1>A marcação negativa do 1S26 veio da curva, não do spread de crédito</h1></div><span class="chip">{VERSAO}</span></header>
+<header><div><div class="kicker">parte 3 · companhia · renda fixa do varejo</div><h1>A renda fixa caiu com o primário seco; a marcação custou R$ 20 mi por tri</h1></div><span class="chip">{VERSAO}</span></header>
 <div class="grid2">
  <div class="card"><h2>Spread de crédito privado sobre o CDI, % a.a., diário</h2><div class="legend"><span><i style="background:var(--s1)"></i>IDEX-CDI, média ponderada ex-estresse (JGP, até 30/04/26)</span><span><i style="background:var(--s3)"></i>ANBIMA, mediana das debêntures DI+ (coleta diária desde 30/09/26)</span><span><i style="background:var(--s2);opacity:.4"></i>1S26</span></div>{svgA}</div>
  <div class="col">
   <div class="card"><h2>Receita de renda fixa do varejo da XP, R$ mi por trimestre</h2>{svgB}</div>
-  <div class="card"><h2>No trimestre, pontos-base: spread IDEX (azul) e taxa pré de 2 anos (cinza)</h2>{svgC}</div>
+  <div class="card"><h2>Emissões de debêntures, notas comerciais, CRI e CRA, R$ bi por trimestre (* 3T26 = jul-ago)</h2>{svgC}</div>
  </div>
 </div>
-<div class="green">No 1T26 a receita de renda fixa do varejo caiu {br(100-RF[Q.index("1Q26")]/RF[Q.index("4Q25")]*100,0)}% no trimestre e {br(100-RF[Q.index("1Q26")]/RF[Q.index("1Q25")]*100,0)}% em um ano, e a XP atribuiu a queda à marcação a mercado. O spread de crédito abriu só {br(dsp["1Q26"],0)} bp no trimestre; a taxa pré de 2 anos abriu {br(float(CV["1Q26"]["dpre2y_bp"]),0)} bp, e no 2T26 a NTN-B de 5 anos abriu {br(float(CV["2Q26"]["dreal5y_bp"]),0)} bp. É o estoque de papel pré e IPCA+ que a mesa carrega para vender ao cliente que perdeu valor. O fundo de crédito da tesouraria (Scorpio) ganhou R$ {br(sc["1Q26"],0)} mi e R$ {br(sc["2Q26"],0)} mi nos dois trimestres. No 3T26 a curva fechou {br(-float(CV["3Q26"]["dpre2y_bp"]),0)} bp: a reversão deve aparecer no próximo resultado.</div>
-<div class="fonte">Fonte: IDEX Analytics/JGP, arquivo público de composição do IDEX-CDI Geral (spread de compra ponderado pelo peso, excluídos papéis com spread acima de 10%; a série pública termina em 30/04/26); ANBIMA, taxas indicativas diárias de debêntures (mediana do spread DI+, {len(anb)} pregões desde 30/09/26, universo diferente do IDEX); XP RI, Historical Financials 2T26 (Retail Fixed Income) e release 2T26 ("impacto MtM em renda fixa"); ETTJ pré e real ANBIMA via monitor; CVM, informes diários dos fundos da tesouraria.</div>
+<div class="green">Pela sensibilidade que a própria XP publica (R$ 0,2 mi por ponto-base na pré, R$ 0,1 a 0,3 mi no cupom de IPCA), os {br(float(CV["1Q26"]["dpre2y_bp"]),0)} bp de abertura da pré no 1T26 e os {br(float(CV["2Q26"]["dreal5y_bp"]),0)} bp da NTN-B no 2T26 custaram perto de R$ 20 mi por trimestre, não os R$ 250 mi que faltaram na receita; o que secou foi o primário, de R$ 219 bi no 4T25 para R$ 122 bi e R$ 109 bi, com Issuer Services de R$ 404 mi para R$ 186 mi. A curva fechou {br(-float(CV["3Q26"]["dpre2y_bp"]),0)} bp no 3T26 e mais 140 bp na semana do 1º turno.</div>
+<div class="fonte">Fonte: IDEX Analytics/JGP, arquivo público de composição do IDEX-CDI Geral (spread de compra ponderado pelo peso, excluídos papéis com spread acima de 10%; a série pública termina em 30/04/26); ANBIMA, taxas indicativas diárias de debêntures (mediana do spread DI+, {len(anb)} pregões desde 30/09/26, universo diferente do IDEX); XP RI, Historical Financials 2T26 (Retail Fixed Income) e release 2T26 ("impacto MtM em renda fixa"); ETTJ pré e real ANBIMA via monitor (fotografias de 02 e 09/10/26 para a semana do 1º turno); ITRs e 20-F, análise de sensibilidade da carteira de trading (cenário I, 1 bp); ANBIMA, Boletim de Mercado de Capitais (emissões domésticas); CVM, informes diários dos fundos da tesouraria.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "spread_credito.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| dsp", {k: round(v) for k, v in dsp.items() if k[2:] in ("25", "26")}, "| scorpio", {k: round(v) for k, v in sc.items() if k.endswith("26")})

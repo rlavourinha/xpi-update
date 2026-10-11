@@ -3,7 +3,7 @@
 Navegação: scroll-snap, setas/PageDown, pontos à direita, deep-link por hash (#s2). Sem JS externo."""
 import os, re, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__))
-VERSAO = "v1.6"; DATA = dt.date.today().strftime("%d/%m/%Y")
+VERSAO = "v1.7"; DATA = dt.date.today().strftime("%d/%m/%Y")
 SLIDES = [  # (arquivo, título curto para os pontos)
     ("slides/industria_fundos.html", "Indústria de fundos"),
     ("slides/fundos_concentracao.html", "Concentração"),

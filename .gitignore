@@ -36,3 +36,5 @@ data/*
 !data/anbima_pf_total_mensal_2020.csv
 !escreve_*.py
 !data/xp_auc_gap_vs_curva_accrual.csv
+!data/xp_sensibilidade_juros.csv
+!data/anbima_emissoes_credito_tri.csv
