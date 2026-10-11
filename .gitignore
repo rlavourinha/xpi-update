@@ -40,3 +40,5 @@ data/*
 !data/anbima_emissoes_credito_tri.csv
 !data/anbima_alocacao_usuario.csv
 !data/anbima_alocacao_usuario_long.csv
+!nowcast_*.py
+!data/xp_dats_nowcast.csv
