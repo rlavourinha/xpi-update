@@ -38,8 +38,18 @@ def curva_real():
     try:
         c = json.load(open(CURVA, encoding="utf-8")); prazos = c["prazos_real"]; out = {}
         for row in c["real"]: out[row[0]] = list(zip(prazos, row[1:]))
-        return out
-    except Exception: return None
+    except Exception: out = {}
+    # fotos diárias da ETTJ ANBIMA (o curva_tesouro.json do monitor pode estar dias atrás; sem isso o spread IPCA+ usava a curva
+    # de 24/09 em outubro e saía ~1 p.p. errado depois do rali do 1º turno). As fotos têm prioridade.
+    try:
+        sys.path.insert(0, os.path.join(HERE, "..", "monitor-investimentos"))
+        from fontes import anbima
+        for d, f in anbima.fotos().items():
+            v = [(x[0] / 252, x[1]) for x in f["vertices"] if x[1] is not None]
+            if v: out[d] = v
+    except Exception as e:
+        print("  ETTJ ANBIMA (fotos) indisponível:", e, file=sys.stderr)
+    return out or None
 
 def ntnb_na_duration(cv, data, anos):
     pts = cv.get(data) if cv else None
