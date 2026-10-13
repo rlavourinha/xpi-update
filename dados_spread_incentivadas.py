@@ -15,11 +15,14 @@ Fontes (todas públicas, papel a papel):
 
 Gross-up (método da Régia, IR de 15%): taxa nominal do papel isento = (1 + taxa real)(1 + inflação implícita no prazo) − 1;
 taxa tributável equivalente = nominal ÷ 0,85; spread com gross-up = equivalente − taxa pré do Tesouro no mesmo prazo.
-Taxa real do papel: ANBIMA = taxa indicativa; IDEX = NTN-B real no prazo + MID spread. Média ponderada pelo peso no índice.
+Taxa real do papel: ANBIMA = taxa indicativa; IDEX = NTN-B real no prazo + MID spread.
+Agregação (a convenção que reproduz o gráfico da Régia): incentivadas = MEDIANA dos papéis (gross-up 2,85 × 2,89 da Régia em 09/10;
+fev/23 4,36 × ~4,4; out/25 1,48 × ~1,5); DI = média PONDERADA pelo peso (1,40 = 1,40). A média ponderada das incentivadas fica
+0,3 a 0,8 p.p. acima por uma cauda de papéis largos; vai em infra_*_pond.
 
-Saída: data/spread_incentivadas_diario.csv (data, fonte, infra_spread, infra_gu, infra_dur, di_spread, dif).
+Saída: data/spread_incentivadas_diario.csv (data, fonte, infra_spread, infra_gu [medianas], infra_spread_pond, infra_gu_pond, infra_dur, di_spread [ponderado], dif).
 Uso: python dados_spread_incentivadas.py  (rodar depois de baixar os arquivos; idempotente)."""
-import os, sys, csv, json, glob, datetime as dt
+import os, sys, csv, json, glob, statistics, datetime as dt
 import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "data")
@@ -129,7 +132,8 @@ def idex_infra():
             real, pre = c
             s = g["MID spread (Bps/NTNB)"] / 100
             gu = [gross_up(real(D) + si, D, real, pre) for D, si in zip(g["Duration"], s)]
-            out[d] = {"infra_spread": float((s * w).sum() / w.sum()), "infra_gu": float(sum(x * wi for x, wi in zip(gu, w)) / w.sum()),
+            out[d] = {"infra_spread": float(s.median()), "infra_gu": float(statistics.median(gu)),
+                      "infra_spread_pond": float((s * w).sum() / w.sum()), "infra_gu_pond": float(sum(x * wi for x, wi in zip(gu, w)) / w.sum()),
                       "infra_dur": float((g["Duration"] * w).sum() / w.sum())}
     return out
 
@@ -166,13 +170,15 @@ def ida():
         c = curva(d)
         if c is None: continue
         real, pre = c
-        sw = sgu = s = w = dur = 0.0
+        sw = sgu = s = w = dur = 0.0; L_s, L_gu = [], []
         for r in _carteira(p):
             tx, du, pw = _num(r["Taxa Indicativa (% a.a.)"]), _num(r["Duration (d.u.)"]), _num(r["Peso (%)"])
             if tx is None or not du or not pw: continue
             D = du / 252
-            s += (tx - real(D)) * pw; sgu += gross_up(tx, D, real, pre) * pw; dur += D * pw; w += pw
-        rec = {"infra_spread": s / w, "infra_gu": sgu / w, "infra_dur": dur / w} if w else {}
+            sp_i, gu_i = tx - real(D), gross_up(tx, D, real, pre)
+            s += sp_i * pw; sgu += gu_i * pw; dur += D * pw; w += pw; L_s.append(sp_i); L_gu.append(gu_i)
+        rec = {"infra_spread": statistics.median(L_s), "infra_gu": statistics.median(L_gu),
+               "infra_spread_pond": s / w, "infra_gu_pond": sgu / w, "infra_dur": dur / w} if w else {}
         pd_ = os.path.join(IDA, f"ida_DI_{ymd}.csv")
         if os.path.exists(pd_):
             sd = wd = 0.0
@@ -198,7 +204,7 @@ def main():
         r = {"data": d, "fonte": "ANBIMA IDA", **anb[d]}
         if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
         linhas.append(r)
-    cols = ["data", "fonte", "infra_spread", "infra_gu", "infra_dur", "di_spread", "dif"]
+    cols = ["data", "fonte", "infra_spread", "infra_gu", "infra_spread_pond", "infra_gu_pond", "infra_dur", "di_spread", "dif"]
     with open(OUT, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=cols); w.writeheader()
         for r in linhas:

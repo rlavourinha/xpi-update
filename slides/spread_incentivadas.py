@@ -19,7 +19,7 @@ mx = max((r for r in I if f(r, "dif") is not None), key=lambda r: f(r, "dif"))
 a0 = next(r for r in A)                                             # 1º dia da janela ANBIMA
 
 # ---- A: 5 anos, IDEX (gross-up × DI × diferença) ----
-W, H, ML, MR, MT, MB = 760, 410, 34, 46, 14, 28
+W, H, ML, MR, MT, MB = 760, 435, 34, 46, 14, 28
 d0, d1 = dt.date(2021, 10, 1), dt.date(2026, 10, 31); vmax = 5.5
 def X(d): return ML + (d - d0).days / (d1 - d0).days * (W - ML - MR)
 def Y(v): return MT + (vmax - v) / vmax * (H - MT - MB)
@@ -52,8 +52,11 @@ g += f'<text x="{xe:.1f}" y="{Y(f(ult,"dif"))-3:.1f}" class="v" style="fill:var(
 g += f'<text x="{xe:.1f}" y="{Y(f(ult,"di_spread"))+12:.1f}" class="v">{br(f(ult,"di_spread"))}</text>'
 pk = max((r for r in I if r["data"] < "2023-06-01" and f(r, "infra_gu")), key=lambda r: f(r, "infra_gu"))
 g += f'<text x="{X(dt.date.fromisoformat(pk["data"]))+6:.1f}" y="{Y(f(pk,"infra_gu"))+4:.1f}" class="lab2">fev/23 (Americanas): {br(f(pk,"infra_gu"))}</text>'
-lo = min((r for r in I if "2025-06-01" <= r["data"] <= "2026-03-25" and f(r, "infra_gu")), key=lambda r: f(r, "infra_gu"))
-g += f'<text x="{X(dt.date.fromisoformat(lo["data"]))-5:.1f}" y="{Y(f(lo,"infra_gu"))+4:.1f}" class="lab2" text-anchor="end">{dt.date.fromisoformat(lo["data"]).strftime("%m/%y").replace("10/25","out/25")}: {br(f(lo,"infra_gu"))}</text>'
+lo = min((r for r in I if "2025-06-01" <= r["data"] <= "2025-12-31" and f(r, "infra_gu")), key=lambda r: f(r, "infra_gu"))
+MES = "jan fev mar abr mai jun jul ago set out nov dez".split(); dlo = dt.date.fromisoformat(lo["data"])
+ylo = max(Y(f(lo, "infra_gu")), Y(f(lo, "di_spread"))) + 19                    # abaixo das duas linhas no ponto de mínimo
+g += f'<line x1="{X(dlo):.1f}" y1="{Y(f(lo,"infra_gu"))+2:.1f}" x2="{X(dlo):.1f}" y2="{ylo-11:.1f}" stroke="var(--ink3)" stroke-width=".8"/>'
+g += f'<text x="{X(dlo):.1f}" y="{ylo:.1f}" class="lab2" text-anchor="middle">{MES[dlo.month-1]}/{dlo:%y}: {br(f(lo,"infra_gu"))}</text>'
 svgA = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Spread das debêntures incentivadas com gross-up e das debêntures DI, diário, out/2021 a out/2026">{g}</svg>'
 
 # ---- B: último mês, sem gross-up ----
@@ -79,9 +82,9 @@ for y, v in ys:
     g2 += f'<text x="{xe2:.1f}" y="{y:.1f}" class="v">{br(v)}</text>'
 svgB = f'<svg viewBox="0 0 {W2} {H2}" width="100%" role="img" aria-label="Spread sem gross-up das incentivadas e das debêntures DI nas últimas quatro semanas">{g2}</svg>'
 
-linhas = [("Incentivadas, sem gross-up", f(ult, "infra_spread"), f(ua, "infra_spread"), None),
-          ("Incentivadas, com gross-up", f(ult, "infra_gu"), f(ua, "infra_gu"), 2.89),
-          ("DI", f(ult, "di_spread"), f(ua, "di_spread"), 1.40),
+linhas = [("Incentivadas (mediana), sem gross-up", f(ult, "infra_spread"), f(ua, "infra_spread"), None),
+          ("Incentivadas (mediana), com gross-up", f(ult, "infra_gu"), f(ua, "infra_gu"), 2.89),
+          ("DI (ponderado)", f(ult, "di_spread"), f(ua, "di_spread"), 1.40),
           ("Diferença (com gross-up − DI)", f(ult, "dif"), f(ua, "dif"), 1.50)]
 tab = "".join(f'<tr><td>{n}</td><td>{br(a)}</td><td>{br(b)}</td><td>{br(c) if c is not None else "—"}</td></tr>' for n, a, b, c in linhas)
 
@@ -95,24 +98,24 @@ html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta n
 .slide{{max-width:1240px;margin:0 auto;padding:24px 32px 16px;min-height:720px;display:flex;flex-direction:column;gap:12px}}
 header{{display:flex;justify-content:space-between;align-items:baseline;gap:16px}} header>div:first-child{{flex:1}} .kicker{{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}}
 h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:12px;color:var(--ink3);border:1px solid var(--grid);border-radius:999px;padding:3px 10px;white-space:nowrap}}
-.grid2{{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start}} .col{{display:flex;flex-direction:column;gap:12px}}
+.grid2{{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}} .col{{display:flex;flex-direction:column;gap:12px}}
 .card{{border:1px solid var(--grid);border-radius:10px;padding:10px 14px}} .card h2{{font:600 14px/1.2 Inter,system-ui,sans-serif;margin:0 0 6px;color:var(--ink2)}}
 .legend{{display:flex;gap:14px;font-size:12px;color:var(--ink2);margin:2px 0 4px;flex-wrap:wrap}} .legend i{{display:inline-block;width:14px;height:3px;vertical-align:3px;margin-right:5px;border-radius:2px}} .legend i.area{{height:12px;vertical-align:-2px;opacity:.35}} .legend i.dash{{background:none!important;border-top:2px dashed currentColor;height:0}}
-table{{width:100%;border-collapse:collapse;font-size:13px}} th,td{{padding:4px 6px;text-align:right;border-bottom:1px solid var(--grid)}} th:first-child,td:first-child{{text-align:left}} th{{font-weight:600;color:var(--ink2);font-size:12px}} tr:last-child td{{font-weight:600}}
-.green{{background:var(--green);color:var(--greenink);border-radius:10px;padding:10px 14px;font-size:15px;font-weight:500}} .fonte{{font-size:11px;color:var(--ink3)}}
+table{{width:100%;border-collapse:collapse;font-size:12.5px}} th,td{{padding:4px 5px;white-space:nowrap;text-align:right;border-bottom:1px solid var(--grid)}} th:first-child,td:first-child{{text-align:left}} th{{font-weight:600;color:var(--ink2);font-size:12px}} tr:last-child td{{font-weight:600}}
+.green{{background:var(--green);color:var(--greenink);border-radius:10px;padding:10px 14px;font-size:15px;font-weight:500}} .fonte{{font-size:10px;line-height:1.3;color:var(--ink3)}}
 svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{stroke:var(--ink3);stroke-width:1}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--ink3)}} svg .lab2{{font:11px Inter,system-ui,sans-serif;fill:var(--ink2)}} svg .v{{font:600 11px Inter,system-ui,sans-serif;fill:var(--ink)}}
 @media (max-width:860px){{.grid2{{grid-template-columns:1fr}}h1{{font-size:24px}}}}
 </style></head><body><div class="slide">
-<header><div><div class="kicker">parte 2 · indústria · crédito incentivado</div><h1>Com gross-up, a incentivada paga {br(f(ult,"dif"),1)} p.p. acima da DI: prêmio no topo de cinco anos</h1></div><span class="chip">{VERSAO}</span></header>
+<header><div><div class="kicker">parte 2 · indústria · crédito incentivado</div><h1>Com gross-up, a incentivada paga {br(f(ult,"dif"),1)} p.p. acima da DI, nível visto em só {br(pct_acima,0)}% dos dias desde 2021</h1></div><span class="chip">{VERSAO}</span></header>
 <div class="grid2">
- <div class="card"><h2>Spread das debêntures, % a.a., diário</h2><div class="legend"><span><i style="background:var(--s3)"></i>incentivadas (IDEX-Infra), com gross-up</span><span><i style="background:var(--s1)"></i>DI (IDEX-CDI)</span><span><i class="area" style="background:var(--s3)"></i>diferença</span><span style="color:var(--s2)"><i class="dash"></i>diferença em {dt.date.fromisoformat(ult["data"]).strftime("%d/%m")}</span></div>{svgA}</div>
+ <div class="card"><h2>Spread das debêntures, % a.a., diário</h2><div class="legend"><span><i style="background:var(--s3)"></i>incentivadas (IDEX-Infra, mediana), com gross-up</span><span><i style="background:var(--s1)"></i>DI (IDEX-CDI)</span><span><i class="area" style="background:var(--s3)"></i>diferença</span><span style="color:var(--s2)"><i class="dash"></i>diferença em {dt.date.fromisoformat(ult["data"]).strftime("%d/%m")}</span></div>{svgA}</div>
  <div class="col">
   <div class="card"><h2>Últimas quatro semanas, sem gross-up, % a.a.</h2><div class="legend"><span><i style="background:var(--s3)"></i>incentivadas</span><span><i style="background:var(--s1)"></i>DI</span><span><i class="dash" style="color:var(--ink2)"></i>ANBIMA IDA (linha cheia = IDEX)</span></div>{svgB}</div>
   <div class="card"><h2>Em {dt.date.fromisoformat(ult["data"]).strftime("%d/%m/%Y")}, % a.a.</h2><table><tr><th></th><th>IDEX</th><th>ANBIMA IDA</th><th>Régia (Valor)</th></tr>{tab}</table></div>
  </div>
 </div>
 <div class="green">Sem gross-up a incentivada abriu de {br(f(a0,"infra_spread"))} para {br(f(ua,"infra_spread"))} sobre a NTN-B em quatro semanas enquanto o DI ficou parado em {br(f(ua,"di_spread"),1)}: o estresse é só das incentivadas, e o 3T26 testa a promessa da XP de não marcar de novo o livro de crédito.</div>
-<div class="fonte">Fonte: IDEX Analytics (ex-JGP), composição diária pública do IDEX-Infra Geral (MID spread sobre a NTN-B de referência; histórico pela captura de 27/03/26 do Wayback, até 25/03/26; arquivo atual desde 09/09/26) e do IDEX-CDI Geral (spread de compra, excluídos papéis acima de 10%; até 30/04/26 e desde 09/09/26); ANBIMA, carteira teórica diária do IDA-IPCA Infraestrutura e do IDA-DI (taxa indicativa e duration de cada papel, janela pública desde 14/09/26); ETTJ pré e real ANBIMA e curva do Tesouro via monitor. Gross-up com IR de 15%: taxa nominal do papel isento (taxa real × inflação implícita no prazo) ÷ 0,85, menos a taxa pré no mesmo prazo, papel a papel, média pelo peso no índice. Régia Capital via Valor (13/10/26). O histórico bate com o gráfico da Régia em 2021–24 (±0,1 p.p.); no trecho recente este cálculo fica ~0,4 p.p. acima, convenção de gross-up da Régia não publicada. Diferença maior ou igual à atual em {br(pct_acima,1)}% dos dias desde out/21; máximo {br(f(mx,"dif"))} em {dt.date.fromisoformat(mx["data"]).strftime("%d/%m/%y")}.</div>
+<div class="fonte">Fonte: IDEX Analytics (ex-JGP), composição diária pública do IDEX-Infra Geral (MID spread sobre a NTN-B de referência; histórico pela captura de 27/03/26 do Wayback, até 25/03/26; arquivo atual desde 09/09/26) e do IDEX-CDI Geral (spread de compra, excluídos papéis acima de 10%; até 30/04/26 e desde 09/09/26); ANBIMA, carteira teórica diária do IDA-IPCA Infraestrutura e do IDA-DI (taxa indicativa e duration de cada papel, janela pública desde 14/09/26); ETTJ pré e real ANBIMA e curva do Tesouro via monitor. Gross-up com IR de 15%: taxa nominal do papel isento (taxa real × inflação implícita no prazo) ÷ 0,85, menos a taxa pré no mesmo prazo, papel a papel. Régia Capital via Valor (13/10/26). Convenção que reproduz a Régia: incentivadas pela mediana dos papéis, DI pela média ponderada (IDA em 09/10: 2,85 e 1,40 contra 2,89 e 1,40 da matéria; fev/23 4,41 contra ~4,4; out/25 1,48 contra ~1,5). Pela média ponderada as incentivadas ficariam 0,3 a 0,8 p.p. acima, puxadas por uma cauda de papéis largos. Diferença maior ou igual à atual em {br(pct_acima,1)}% dos dias desde out/21; máximo {br(f(mx,"dif"))} em {dt.date.fromisoformat(mx["data"]).strftime("%d/%m/%y")}.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "spread_incentivadas.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| último", ult["data"], "gu", round(f(ult, "infra_gu"), 2), "DI", round(f(ult, "di_spread"), 2), "dif", round(f(ult, "dif"), 2), "| % dias >=:", round(pct_acima, 1))
