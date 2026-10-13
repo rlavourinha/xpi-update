@@ -13,6 +13,7 @@ SLIDES = [  # (arquivo, título curto para os pontos)
     ("slides/auc_vs_indice_pf.html", "AuC vs índice PF"),
     ("slides/auc_vs_curva.html", "AuC vs carteira na curva"),
     ("slides/spread_credito.html", "Spread de crédito"),
+    ("slides/spread_incentivadas.html", "Spread das incentivadas"),
     ("slides/xp_tesouraria.html", "Tesouraria da XP"),
     ("slides/xp_tesouraria_carteira.html", "Livros da tesouraria"),
 ]

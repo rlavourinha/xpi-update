@@ -43,3 +43,4 @@ data/*
 !nowcast_*.py
 !data/xp_dats_nowcast.csv
 !data/xp_dats_nowcast_diario.csv
+!data/spread_incentivadas_diario.csv

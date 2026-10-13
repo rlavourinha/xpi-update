@@ -6,3 +6,5 @@ if not exist logs mkdir logs
 set PYTHONIOENCODING=utf-8
 python dados_b3_bdi_diario.py >> "logs\bdi_%date:~6,4%-%date:~3,2%.log" 2>&1
 python dados_anbima_debentures_diario.py >> "logs\debentures_%date:~6,4%-%date:~3,2%.log" 2>&1
+python dados_spread_incentivadas.py >> "logs\spread_incentivadas_%date:~6,4%-%date:~3,2%.log" 2>&1
+python slides\spread_incentivadas.py >> "logs\spread_incentivadas_%date:~6,4%-%date:~3,2%.log" 2>&1
