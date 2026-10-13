@@ -16,7 +16,7 @@ foreach ($t in $tarefas) {
     if ($Remover) { Write-Host "removida: $($t.Nome)"; continue }
     $acao = New-ScheduledTaskAction -Execute "cmd.exe" -Argument "/c `"$bat`"" -WorkingDirectory $pasta
     $gat = & $t.Gatilho
-    $cfg = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 2) -MultipleInstances IgnoreNew
+    $cfg = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 2) -MultipleInstances IgnoreNew -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
     Register-ScheduledTask -TaskName $t.Nome -Action $acao -Trigger $gat -Settings $cfg -Description $t.Descr | Out-Null
     Write-Host "registrada: $($t.Nome) - $($t.Descr)"
 }
