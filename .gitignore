@@ -53,3 +53,7 @@ data/b3_rlp_diario_long.csv
 !data/xp_rankings_anbima.csv
 !data/xp_receita_por_trade_rlp.csv
 !data/_idex_cdi_s3_diario.csv
+!data/cvm_ipo_anual.csv
+!data/cvm_ofertas_acoes.csv
+!data/cvm_ofertas_custos.csv
+!data/cvm_ipos_safras.csv
