@@ -44,3 +44,12 @@ data/*
 !data/xp_dats_nowcast.csv
 !data/xp_dats_nowcast_diario.csv
 !data/spread_incentivadas_diario.csv
+data/b3_rlp_diario_long.csv
+!parse_*.py
+!data/mercado_capitais_anual.csv
+!data/mercado_capitais_tri.csv
+!data/ma_kpmg_anual.csv
+!data/xp_mercado_capitais_tri.csv
+!data/xp_rankings_anbima.csv
+!data/xp_receita_por_trade_rlp.csv
+!data/_idex_cdi_s3_diario.csv
