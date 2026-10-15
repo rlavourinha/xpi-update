@@ -1,0 +1,30 @@
+ano,operacao,formulario,banco,papel,tipo_remuneracao,moeda,valor_mi,contingente_ao_fechamento,observacao
+2003,Vivo: oferta de aquisição de ações,SC TO-T/TO-I,BES Investimento,assessor,fixo,BRL,1.5,nao,
+2003,Vivo: oferta de aquisição de ações,SC TO-T/TO-I,Bradesco,intermediário da oferta,percentual,BRL,,sim,0,03% do preço total pago
+2005,Arcelor: incorporação de ações da CST pela Belgo-Mineira,F-4,UBS,laudo/fairness para a CST,fixo + sucesso,USD,1.5,parcial,US$ 1,0 mi no laudo + US$ 0,5 mi no fechamento
+2005,Arcelor: incorporação de ações da CST pela Belgo-Mineira,F-4,Deutsche Bank,laudo/fairness para a Belgo,fixo + sucesso,USD,1.5,parcial,US$ 1,0 mi no laudo + US$ 0,5 mi no fechamento
+2005,Arcelor: incorporação de ações da CST pela Belgo-Mineira,F-4,UBS,assessor da Arcelor,sucesso + discricionário,USD,2.0,parcial,até US$ 2,0 mi
+2006,Embraer: reestruturação societária,F-4,Citigroup,fairness opinion,fixo,USD,0.4,nao,
+2006,Telemar: reestruturação (TNL),F-4,Rothschild,assessor,mínimo + sucesso,USD,6.25,parcial,US$ 0,75 mi mínimo + US$ 5,5 mi de sucesso
+2006,Embratel: fechamento de capital (Telmex),SC 13E3,ABN AMRO,laudo de avaliação,fixo,USD,0.5,nao,
+2007,Tele Norte Leste: oferta pública,SC 13E3,Rothschild,laudo + assessor,fixo + sucesso,USD,6.25,parcial,US$ 0,5 mi no laudo; total de US$ 6,25 mi no sucesso
+2007,Ambev: oferta pela Quilmes (Quinsa),SC TO-T,Citigroup,fairness opinion (Quinsa),fixo,USD,0.2,nao,
+2007,Ambev: oferta pela Quilmes (Quinsa),SC TO-T,Credit Suisse,dealer manager,fixo,USD,0.65,sim,
+2008,Ambev: segunda oferta pela Quilmes (Quinsa),SC TO-T,Citigroup,fairness opinion (Quinsa),fixo,USD,0.2,nao,
+2008,Tele Norte Celular: oferta pública,SC TO-I/13E3,Credit Suisse,laudo de avaliação,fixo,BRL,1.2,nao,
+2008,Oi/Brasil Telecom: oferta pelas ações da BrT,SC TO-T,Credit Suisse,laudo de avaliação,fixo,BRL,2.0,nao,
+2009,Coari (Oi): reorganização,F-4,Apsis,laudo de avaliação,fixo,BRL,0.071,nao,
+2009,VCP/Aracruz (Fibria),F-4,Merrill Lynch,análise financeira para a Aracruz,fixo,USD,0.8,nao,
+2009,VCP/Aracruz (Fibria),F-4,Bradesco BBI,análise financeira para a VCP,fixo,BRL,0.6,nao,mais impostos e despesas
+2009,Vivo/Telemig: reorganização,F-4,Citi,laudo de avaliação,fixo,BRL,0.45,nao,
+2010,NET: oferta por ações preferenciais,SC 13E3,Itaú BBA,laudo de avaliação,fixo,BRL,0.703,nao,
+2011,Oi: reorganização societária (TNL/BrT),F-4,Itaú BBA,apresentação para a Brasil Telecom,fixo,BRL,1.5,nao,
+2011,Oi: reorganização societária (TNL/BrT),F-4,BTG Pactual,apresentação para a TNL,fixo,BRL,1.5,nao,
+2012,Oi: reorganização societária,F-4,Barclays,assessor,fixo,BRL,0.7,nao,
+2012,LAN/TAM (LATAM),SC 14D9,BTG Pactual,assessor da TAM,sucesso,USD,24.0,sim,US$ 5 mi se a operação fosse abandonada
+2012,NET: oferta de fechamento de capital (América Movil),SC TO-T,BTG Pactual,laudo de avaliação,fixo,BRL,0.664,nao,
+2013,NET: oferta de fechamento de capital,SC 14D9,Credit Suisse,fairness opinion,fixo,BRL,0.6,nao,
+2014,Santander Brasil: oferta de troca (Santander Espanha),SC 14D9,BTG Pactual,fairness opinion,fixo,BRL,0.3,nao,
+2019,Natura &Co/Avon,F-4,Goldman Sachs,assessor da Avon,upfront + sucesso,USD,27.0,maior parte,US$ 5 mi upfront + transação estimada em US$ 27 mi no total
+2023,Arco Platform: fechamento de capital (General Atlantic/Dragoneer),SC 13E3,Evercore,fairness + assessor do comitê,fixo + sucesso,USD,5.5,parcial,US$ 1,0 mi na contratação + 1,5 mi na opinião + 3,0 mi no fechamento
+2025,Vasta Platform: oferta de fechamento (Cogna),SC TO-T,Itaú BBA,dealer manager,sucesso,USD,0.75,sim,
