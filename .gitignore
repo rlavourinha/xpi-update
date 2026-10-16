@@ -58,3 +58,8 @@ data/b3_rlp_diario_long.csv
 !data/cvm_ofertas_custos.csv
 !data/cvm_ipos_safras.csv
 !data/sec_ma_brasil_*.csv
+!analise_*.py
+!triagem_*.py
+!data/xp_auc_valorizacao_ex_magalu.csv
+!data/precos_mglu_ambp_diario.csv
+!data/triagem_1t21_controladores.csv
