@@ -78,3 +78,12 @@ V["ajustada_mo_pct"] = V.ajustada_mo_pct.fillna(V.ajustada_pct)
 V["gap_ajust_mo"] = V.ajustada_mo_pct - V.bottom_up_pct
 V.loc["1Q19":"2Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
 print(V.loc["4Q20":"2Q26", ["nossa_conta_pct", "ajustada_pct", "ajustada_mo_pct", "bottom_up_pct", "magalu_mtm_bi", "ometto_mtm_bi", "ometto_bloco_bi", "ometto_pct_auc"]].round(2).to_string())
+
+# ---- referências: CDI (BCB SGS 12, via nowcast) e Ibovespa (série do screening: ../monitor-investimentos/data/macro.json), retorno trimestral % ----
+import json as _json
+IB = pd.Series({pd.Timestamp(d): v for d, v in _json.load(open(os.path.join(HERE, "..", "monitor-investimentos", "data", "macro.json"), encoding="utf-8"))["hist"]["Ibovespa"]}).sort_index()
+ibq = IB.resample("QE").last().pct_change() * 100
+ibq.index = [f"{d.quarter}Q{str(d.year)[2:]}" for d in ibq.index]
+V["cdi_pct"] = N["CDI"].reindex(V.index); V["ibov_pct"] = ibq.reindex(V.index)
+V.loc["1Q19":"2Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
+print(V.loc["1Q19":"2Q26", ["cdi_pct", "ibov_pct"]].round(2).T.to_string())

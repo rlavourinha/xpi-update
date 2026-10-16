@@ -9,9 +9,9 @@ VERSAO = "v2.0 · 16/10/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 T = list(csv.DictReader(open(os.path.join(DATA, "xp_auc_valorizacao_ex_magalu.csv"), encoding="utf-8")))
 Q = [r[""] for r in T]; n = len(Q)
-S = {k: [float(r[k]) for r in T] for k in ["nossa_conta_pct", "ajustada_pct", "bottom_up_pct", "magalu_pct_auc", "magalu_bloco_bi", "magalu_mtm_bi", "ajustada_mo_pct", "ometto_mtm_bi", "ometto_pct_auc"]}
-COL = {"nossa_conta_pct": "var(--s1)", "ajustada_mo_pct": "var(--s2)", "bottom_up_pct": "var(--ink3)"}
-NOME = {"nossa_conta_pct": "Nossa conta", "ajustada_mo_pct": "Sem Magalu e Ometto", "bottom_up_pct": "Bottom-up"}
+S = {k: [float(r[k]) for r in T] for k in ["nossa_conta_pct", "ajustada_pct", "bottom_up_pct", "magalu_pct_auc", "magalu_bloco_bi", "magalu_mtm_bi", "ajustada_mo_pct", "ometto_mtm_bi", "ometto_pct_auc", "cdi_pct", "ibov_pct"]}
+COL = {"nossa_conta_pct": "var(--s1)", "ajustada_mo_pct": "var(--s2)", "bottom_up_pct": "var(--ink3)", "cdi_pct": "var(--s6)", "ibov_pct": "var(--s5)"}
+NOME = {"nossa_conta_pct": "Nossa conta", "ajustada_mo_pct": "Sem Magalu e Ometto", "bottom_up_pct": "Bottom-up", "cdi_pct": "CDI", "ibov_pct": "Ibovespa"}
 def lab(q): return q[0] + "T" + q[2:]  # 1Q21 -> 1T21
 
 # ---- A: trimestral, barras lado a lado ----
@@ -47,7 +47,7 @@ def cum(v):
     for x in v: a *= 1 + x / 100; out.append(a)
     return out
 C = {k: cum(S[k]) for k in COL}
-W2, H2, ML2, MR2, MT2, MB2 = 440, 200, 34, 150, 10, 26
+W2, H2, ML2, MR2, MT2, MB2 = 440, 200, 34, 164, 10, 26
 cmin, cmax = 80, 220
 def Y2(v): return MT2 + (cmax - v) / (cmax - cmin) * (H2 - MT2 - MB2)
 def X2(i): return ML2 + i / n * (W2 - ML2 - MR2)
@@ -57,11 +57,15 @@ for i, q in enumerate(Q):
 ylab = []
 for k in sorted(COL, key=lambda k: -C[k][-1]):
     pts = " ".join(f"{X2(i):.1f},{Y2(C[k][i]):.1f}" for i in range(n + 1))
-    g2 += f'<polyline points="{pts}" fill="none" stroke="{COL[k]}" stroke-width="{1.5 if k=="bottom_up_pct" else 2.2}" stroke-linejoin="round"{" stroke-dasharray=\"4 3\"" if k=="bottom_up_pct" else ""}/>'
-    y = Y2(C[k][-1])
-    while any(abs(y - z) < 14 for z in ylab): y += 14
+    g2 += f'<polyline points="{pts}" fill="none" stroke="{COL[k]}" stroke-width="{1.2 if k in ("bottom_up_pct", "cdi_pct", "ibov_pct") else 2.2}" stroke-linejoin="round"{" stroke-dasharray=\"4 3\"" if k=="bottom_up_pct" else ""}/>'
+    y0 = Y2(C[k][-1]); y = y0
+    while any(abs(y - z) < 13.5 for z in ylab): y += 13.5
     ylab.append(y)
-    g2 += f'<circle cx="{X2(n):.1f}" cy="{Y2(C[k][-1]):.1f}" r="3" fill="{COL[k]}" stroke="var(--surface)" stroke-width="1.5"><title>{NOME[k]}: {br(C[k][-1],1)}</title></circle><text x="{X2(n)+8:.1f}" y="{y+4:.1f}" class="lab"><tspan class="num">{br(C[k][-1],0)}</tspan> {NOME[k]}</text>'
+    # guia na cor da série: do marcador até o rótulo (Ibovespa e CDI terminam no mesmo valor)
+    ref = k in ("bottom_up_pct", "cdi_pct", "ibov_pct")
+    g2 += (f'<polyline points="{X2(n)+5:.1f},{y0:.1f} {X2(n)+10:.1f},{y:.1f} {X2(n)+19:.1f},{y:.1f}" fill="none" stroke="{COL[k]}" stroke-width="{1.6 if ref else 2.2}"{" stroke-dasharray=\"3 2\"" if k=="bottom_up_pct" else ""}/>'
+           f'<circle cx="{X2(n):.1f}" cy="{y0:.1f}" r="{2.5 if ref else 3}" fill="{COL[k]}" stroke="var(--surface)" stroke-width="1.2"><title>{NOME[k]}: {br(C[k][-1],1)}</title></circle>'
+           f'<text x="{X2(n)+22:.1f}" y="{y+4:.1f}" class="lab"><tspan class="num">{br(C[k][-1],0)}</tspan> {NOME[k]}</text>')
 svgB = f'<svg viewBox="0 0 {W2} {H2}" width="100%" role="img" aria-label="Acumulado desde o fim de 2018, base 100">{g2}</svg>'
 
 # ---- C: impacto anual na valorização, R$ bi (barras lado a lado) ----
@@ -89,9 +93,9 @@ cagr = lambda k: ((C[k][-1] / 100) ** (4 / n) - 1) * 100
 html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AuC sem custódias</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{{--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--ink3:#8a8984;--grid:#e8e7e3;--band:#f1f0ec;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--green:#e6f4ea;--greenink:#14532d}}
-@media (prefers-color-scheme:dark){{:root:not([data-theme="light"]){{--surface:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--ink3:#8a8984;--grid:#2e2e2b;--band:#232321;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--green:#15301f;--greenink:#b7e4c7}}}}
-:root[data-theme="dark"]{{--surface:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--ink3:#8a8984;--grid:#2e2e2b;--band:#232321;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--green:#15301f;--greenink:#b7e4c7}}
+:root{{--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--ink3:#8a8984;--grid:#e8e7e3;--band:#f1f0ec;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--green:#e6f4ea;--greenink:#14532d}}
+@media (prefers-color-scheme:dark){{:root:not([data-theme="light"]){{--surface:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--ink3:#8a8984;--grid:#2e2e2b;--band:#232321;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--green:#15301f;--greenink:#b7e4c7}}}}
+:root[data-theme="dark"]{{--surface:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--ink3:#8a8984;--grid:#2e2e2b;--band:#232321;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#008300;--green:#15301f;--greenink:#b7e4c7}}
 *{{box-sizing:border-box}} body{{margin:0;background:var(--surface);color:var(--ink);font:15px/1.35 Inter,system-ui,sans-serif}}
 .slide{{max-width:1240px;margin:0 auto;padding:24px 32px 16px;min-height:720px;display:flex;flex-direction:column;gap:12px}}
 header{{display:flex;justify-content:space-between;align-items:baseline;gap:16px}} header>div:first-child{{flex:1}} .kicker{{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}}
@@ -112,8 +116,8 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
   <div class="card"><h2>Impacto na valorização, R$ bi por ano  (* 2026 = 1º semestre)</h2><div class="legend"><span><i style="background:var(--s3)"></i>Magalu</span><span><i style="background:var(--s4)"></i>Grupo Ometto (Cosan + Rumo)</span></div>{svgC}</div>
  </div>
 </div>
-<div class="green">As duas custódias tiraram R$ {br(-mtm_m-mtm_o,0)} bi da valorização (Magalu R$ {br(-mtm_m,0)} bi, Ometto R$ {br(-mtm_o,0)} bi). Sem elas o AuC de varejo rende {br(cagr("ajustada_mo_pct"),1)}% ao ano desde 2019, contra {br(cagr("nossa_conta_pct"),1)}% na nossa conta e {br(cagr("bottom_up_pct"),1)}% no bottom-up.</div>
-<div class="fonte">Fonte: XP RI (Retail Client Assets e Net Inflow; captação extraordinária de R$ 78 bi no 3T20, R$ 26 bi no 1T21 e R$ 34 bi da Modal no 3T23). Blocos: posição dos controladores no VLMO da CVM × fechamento no COTAHIST da B3. Magalu: 948,6 mi de MGLU3 (R$ 78 bi a R$ 82,2, preço de 10/07 a 17/08/20). Grupo Ometto, desde a reorganização da Cosan de 08/03/21: 140,5 mi de CSAN3 do controlador (562,7 mi após o desdobramento; o follow-on de nov/25 é dinheiro novo e fica fora) e 633,5 mi de RAIL3 da Cosan (448,8 mi após a venda via TRS em dez/25); ADS em Nova York fora. Ajustada = (valorização − marcação dos blocos) ÷ (AuC − blocos). Bottom-up como no slide anterior. A custódia em si não é pública: atribuição pelo tamanho e pela data.</div>
+<div class="green">As duas custódias tiraram R$ {br(-mtm_m-mtm_o,0)} bi da valorização (Magalu R$ {br(-mtm_m,0)} bi, Ometto R$ {br(-mtm_o,0)} bi). Sem elas o AuC de varejo rende {br(cagr("ajustada_mo_pct"),1)}% ao ano desde 2019, contra {br(cagr("nossa_conta_pct"),1)}% na nossa conta, {br(cagr("cdi_pct"),1)}% do CDI, {br(cagr("ibov_pct"),1)}% do Ibovespa e {br(cagr("bottom_up_pct"),1)}% no bottom-up.</div>
+<div class="fonte">Fonte: XP RI (Retail Client Assets e Net Inflow; captação extraordinária de R$ 78 bi no 3T20, R$ 26 bi no 1T21 e R$ 34 bi da Modal no 3T23). Blocos: posição dos controladores no VLMO da CVM × fechamento no COTAHIST da B3. Magalu: 948,6 mi de MGLU3 (R$ 78 bi a R$ 82,2, preço de 10/07 a 17/08/20). Grupo Ometto, desde a reorganização da Cosan de 08/03/21: 140,5 mi de CSAN3 do controlador (562,7 mi após o desdobramento; o follow-on de nov/25 é dinheiro novo e fica fora) e 633,5 mi de RAIL3 da Cosan (448,8 mi após a venda via TRS em dez/25); ADS em Nova York fora. Ajustada = (valorização − marcação dos blocos) ÷ (AuC − blocos). Bottom-up como no slide anterior. CDI: BCB SGS 12. Ibovespa: B3 (série do screening). A custódia em si não é pública: atribuição pelo tamanho e pela data.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "auc_ex_magalu.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| acum nossa", round(C["nossa_conta_pct"][-1], 1), "ajust", round(C["ajustada_mo_pct"][-1], 1), "bu", round(C["bottom_up_pct"][-1], 1), "| mtm", round(mtm_m, 1), round(mtm_o, 1), "| cagr", round(cagr("nossa_conta_pct"), 2), round(cagr("ajustada_mo_pct"), 2), round(cagr("bottom_up_pct"), 2))
