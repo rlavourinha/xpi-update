@@ -3,7 +3,7 @@
 Ibovespa e CDI, trimestral desde 1T20. Dados: data/xp_auc_vs_indice_pf.csv (de dados_indice_pf.py + xp_auc_nowcast). Gera slides/auc_vs_indice_pf.html."""
 import csv, os
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v1.4 · 09/10/2026"
+VERSAO = "v2.0 · 16/10/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 rows = list(csv.DictReader(open(os.path.join(DATA, "xp_auc_vs_indice_pf.csv"), encoding="utf-8")))
 Q = [r[""] for r in rows]; n = len(Q)
@@ -93,7 +93,7 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
   <div class="card"><h2>Gap trimestral: AuC implícita − bottom-up com o índice PF na fatia de ações, pp</h2>{svgC}</div>
  </div>
 </div>
-<div class="green">Trocar o Ibovespa pelo índice da pessoa física na fatia de ações não fecha a conta: o gap médio desde 2023 vai de {br(gm_cvm,1)} para {br(gm,1)} pp por trimestre. A carteira da PF na bolsa, com teto de 8% por nome e sem o peso de Petrobras, rendeu {br(cagr(C["pf_count"]),1)}% ao ano contra {br(cagr(C["ibov"]),1)}% do Ibovespa e {br(cagr(C["cdi"]),1)}% do CDI; o AuC reportado da XP, {br(cagr(C["auc_xp"]),1)}% ao ano, fica abaixo de todos.</div>
-<div class="fonte">Fonte: XP RI (Retail Client's Assets e Total Retail Net Inflow; valorização implícita = ΔAuC − captação líquida, inclui reclassificações); "índice da pessoa física" = constituintes do Ibovespa ponderados pelo número de acionistas pessoa física de cada companhia no Formulário de Referência (CVM, item 15, dados abertos 2019–2025), rebalanceado todo ano com o FRE do ano anterior, teto de 8% por companhia, retorno total com preços ajustados (yfinance) corrigidos pelo COTAHIST; Ibovespa retorno total; CDI (BCB SGS 12). Bottom-up = ações × índice PF + renda fixa × classe Renda Fixa CVM + fundos × fundos administrados pela XP + outros × Renda Fixa, pesos do início do trimestre. Limites: contagem de CPFs não é valor (bases herdadas de Vivo e TIM), FRE anual com cinco meses de defasagem.</div>
+<div class="green">Trocar o Ibovespa pelo índice da pessoa física na fatia de ações não fecha a conta: o gap médio desde 2023 {("fica em " + br(gm,1) + " pp por trimestre nas duas versões") if abs(gm-gm_cvm) < 0.05 else ("vai de " + br(gm_cvm,1) + " para " + br(gm,1) + " pp por trimestre")}. A carteira da PF na bolsa, com teto de 8% por nome e sem o peso de Petrobras, rendeu {br(cagr(C["pf_count"]),1)}% ao ano contra {br(cagr(C["ibov"]),1)}% do Ibovespa e {br(cagr(C["cdi"]),1)}% do CDI; o AuC reportado da XP, {br(cagr(C["auc_xp"]),1)}% ao ano, fica abaixo de todos.</div>
+<div class="fonte">Fonte: XP RI (Retail Client's Assets e Total Retail Net Inflow; valorização implícita = ΔAuC − captação líquida, inclui reclassificações); "índice da pessoa física" = constituintes do Ibovespa ponderados pelo número de acionistas pessoa física de cada companhia no Formulário de Referência (CVM, item 15, dados abertos 2019–2025), rebalanceado todo ano com o FRE do ano anterior, teto de 8% por companhia, retorno total com preços ajustados (yfinance) corrigidos pelo COTAHIST; Ibovespa retorno total; CDI (BCB SGS 12). Bottom-up = régua de mercado com o índice PF no lugar do Ibovespa: ações × índice PF + renda fixa × CDI + fundos × fundos administrados pela XP + outros × CDI, saldo parado a zero; pesos do início do trimestre. Limites: contagem de CPFs não é valor (bases herdadas de Vivo e TIM), FRE anual com cinco meses de defasagem.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "auc_vs_indice_pf.html"); open(out, "w", encoding="utf-8").write(html); print("ok", out, "gap_pf", round(gm, 2), "gap_cvm", round(gm_cvm, 2))

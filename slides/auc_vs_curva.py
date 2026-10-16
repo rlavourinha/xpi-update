@@ -4,7 +4,7 @@ originada mês a mês à ETTJ da ANBIMA), trimestral desde 1T19. Testa a hipóte
 Dados: data/xp_auc_gap_vs_curva_accrual.csv e data/xp_auc_nowcast.csv. Gera slides/auc_vs_curva.html."""
 import csv, os
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v1.5 · 11/10/2026"
+VERSAO = "v2.0 · 16/10/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 T = {r[""]: r for r in csv.DictReader(open(os.path.join(DATA, "xp_auc_gap_vs_curva_accrual.csv"), encoding="utf-8"))}
 N = {r[""]: r for r in csv.DictReader(open(os.path.join(DATA, "xp_auc_nowcast.csv"), encoding="utf-8"))}
@@ -44,7 +44,7 @@ svgA = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Acumulad
 anos = sorted({q[:4] for q in Q}); ser = ["auc", "curva", "cdi"]
 A = {k: {a: cum([S[k][i] for i, q in enumerate(Q) if q.startswith(a)])[-1] - 100 for a in anos} for k in ser}
 W2, H2, ML2, MR2, MT2, MB2 = 440, 160, 36, 10, 16, 26
-vmin, vmax = -10, 20
+vmin, vmax = -14, 20
 def Y2(v): return MT2 + (vmax - v) / (vmax - vmin) * (H2 - MT2 - MB2)
 gw = (W2 - ML2 - MR2) / len(anos); bw = (gw - 8) / len(ser)
 g2 = "".join(f'<line x1="{ML2}" y1="{Y2(t):.1f}" x2="{W2-MR2}" y2="{Y2(t):.1f}" class="grid"/><text x="{ML2-6}" y="{Y2(t)+4:.1f}" class="ax" text-anchor="end">{br(t,0)}</text>' for t in range(-10, 21, 10))
@@ -58,7 +58,7 @@ svgB = f'<svg viewBox="0 0 {W2} {H2}" width="100%" role="img" aria-label="Retorn
 
 # ---- C: trimestral, carteira na curva − CDI vs gap do AuC ----
 W3, H3, ML3, MR3, MT3, MB3 = 440, 150, 36, 10, 16, 26
-gmin, gmax = -8, 4
+gmin, gmax = -8, 6
 def Y3(v): return MT3 + (gmax - v) / (gmax - gmin) * (H3 - MT3 - MB3)
 bw3 = (W3 - ML3 - MR3) / n
 g3 = "".join(f'<line x1="{ML3}" y1="{Y3(t):.1f}" x2="{W3-MR3}" y2="{Y3(t):.1f}" class="grid"/><text x="{ML3-6}" y="{Y3(t)+4:.1f}" class="ax" text-anchor="end">{br(t,0)}</text>' for t in range(-8, 5, 4))
@@ -100,7 +100,7 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
  </div>
 </div>
 <div class="green">Marcação na curva não explica o gap. Em 2020-21 os cupons antigos teriam feito a carteira bater o CDI em {br(s_cur,1)} pp, e o AuC ficou {br(-s_gap,1)} pp abaixo do esperado. Desde 2023 a carteira na curva rende {br(-m_cur,1)} pp por trimestre abaixo do CDI contra um gap de {br(-m_gap,1)}, e a correlação trimestral entre as duas séries é {br(corr,2)}.</div>
-<div class="fonte">Fonte: carteira teórica na curva = 50% pré de 2 anos + 50% IPCA+ de 5 anos, cada um originado mês a mês à taxa da ETTJ da ANBIMA do mês e carregado até o vencimento (estoque = últimas 24 e 60 safras, pesos iguais), IPCA realizado (IBGE/BCB SGS 433); linhas pontilhadas = cada perna isolada. AuC XP = valorização implícita do Retail Client's Assets (ΔAuC − Net Inflow, XP RI). CDI: BCB SGS 12. Gap = AuC implícita − bottom-up (ações × Ibovespa + renda fixa × fundos RF CVM + fundos × fundos administrados pela XP + outros × RF).</div>
+<div class="fonte">Fonte: carteira teórica na curva = 50% pré de 2 anos + 50% IPCA+ de 5 anos, cada um originado mês a mês à taxa da ETTJ da ANBIMA do mês e carregado até o vencimento (estoque = últimas 24 e 60 safras, pesos iguais), IPCA realizado (IBGE/BCB SGS 433); linhas pontilhadas = cada perna isolada. AuC XP = valorização implícita do Retail Client's Assets (ΔAuC − Net Inflow, XP RI). CDI: BCB SGS 12. Gap = AuC implícita − régua de mercado (ações × Ibovespa + renda fixa × CDI + fundos × fundos administrados pela XP + outros × CDI, saldo parado a zero).</div>
 </div></body></html>'''
 out = os.path.join(HERE, "auc_vs_curva.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| cagr curva", round(cagr(C["curva"]), 2), "auc", round(cagr(C["auc"]), 2), "cdi", round(cagr(C["cdi"]), 2), "| 2020-21 curva-cdi", round(s_cur, 1), "gap", round(s_gap, 1), "| 2023+ médias", round(m_cur, 2), round(m_gap, 2), "| corr", round(corr, 2))
