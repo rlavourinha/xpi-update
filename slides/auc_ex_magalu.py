@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """Slide: valorização implícita do AuC de varejo da XP (nossa conta: ΔAuC − captação, sem as captações extraordinárias) e a mesma série
 sem a custódia do bloco controlador da Magalu (entrada de R$ 78 bi no 3T20; marcação a mercado tirada do numerador e o bloco tirado da base).
 Mais o acumulado contra o bottom-up e os candidatos para a captação extraordinária de R$ 26 bi do 1T21.
@@ -15,7 +15,7 @@ NOME = {"nossa_conta_pct": "Nossa conta", "ajustada_pct": "Sem a Magalu", "botto
 def lab(q): return q[0] + "T" + q[2:]  # 1Q21 -> 1T21
 
 # ---- A: trimestral, barras lado a lado ----
-W, H, ML, MR, MT, MB = 720, 450, 36, 8, 22, 28
+W, H, ML, MR, MT, MB = 720, 437, 36, 8, 22, 28
 vmin, vmax = -16, 12
 def Y(v): return MT + (vmax - v) / (vmax - vmin) * (H - MT - MB)
 gw = (W - ML - MR) / n; bw = (gw - 3) / 2
@@ -47,7 +47,7 @@ def cum(v):
     for x in v: a *= 1 + x / 100; out.append(a)
     return out
 C = {k: cum(S[k]) for k in COL}
-W2, H2, ML2, MR2, MT2, MB2 = 440, 230, 34, 150, 10, 26
+W2, H2, ML2, MR2, MT2, MB2 = 440, 200, 34, 150, 10, 26
 cmin, cmax = 80, 220
 def Y2(v): return MT2 + (cmax - v) / (cmax - cmin) * (H2 - MT2 - MB2)
 def X2(i): return ML2 + i / n * (W2 - ML2 - MR2)
@@ -94,14 +94,14 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
   <div class="card"><h2>Acumulado desde o fim de 2018, base 100, até o 2T26</h2>{svgB}</div>
   <div class="card"><h2>1T21: quem pode ter trazido os R$ 26 bi</h2><table>
    <tr><th>Candidato</th><th>Evento</th><th>Bloco em 31/03/21</th></tr>
-   <tr class="top"><td>Cosan (Ometto)</td><td>reorganização de 08/03/21: ações da Cosan Ltd. (NYSE) viram CSAN3 no Brasil; controlador opera via XP desde 2022</td><td class="n">R$ 13–39 bi</td></tr>
+   <tr class="top"><td>Cosan (Ometto)</td><td>reorganização de 08/03/21: classe B da Cosan Ltd. (Bermudas) vira CSAN3 nova no escriturador; controlador opera via XP desde 2022</td><td class="n">R$ 13–19 bi</td></tr>
    <tr><td>Rede D'Or (Moll)</td><td>IPO em dez/20, sem operação via XP</td><td class="n">R$ 67 bi</td></tr>
    <tr><td>Hapvida (Pinheiro)</td><td>sem operação via XP</td><td class="n">R$ 39 bi</td></tr>
   </table></div>
  </div>
 </div>
 <div class="green">A custódia da Magalu chegou a {br(pico,0)}% do AuC de varejo e perdeu R$ {br(-mtm,0)} bi depois de entrar. Sem ela, 2021 vai de {br(a21n,1)}% para {br(a21a,1)}%, mas o gap contra o bottom-up só cai de {br(-gapN,0)} para {br(-gapA,0)} pp, e desde 2023 nada muda.</div>
-<div class="fonte">Fonte: XP RI (Retail Client Assets e Net Inflow; captação extraordinária de R$ 78 bi no 3T20, R$ 26 bi no 1T21 e R$ 34 bi da Modal no 3T23). Bloco da Magalu: posição mensal do grupo controlador no VLMO da CVM × fechamento de MGLU3 no COTAHIST da B3; os R$ 78 bi equivalem às 948,6 mi de ações a R$ 82,2, preço de 10/07 a 17/08/20. Sem a Magalu = (valorização − marcação do bloco) ÷ (AuC − bloco). Bottom-up como no slide anterior. Candidatos do 1T21: controladores no VLMO com bloco de R$ 10-70 bi; a custódia em si não é pública.</div>
+<div class="fonte">Fonte: XP RI (Retail Client Assets e Net Inflow; captação extraordinária de R$ 78 bi no 3T20, R$ 26 bi no 1T21 e R$ 34 bi da Modal no 3T23). Bloco da Magalu: posição mensal do grupo controlador no VLMO da CVM × fechamento de MGLU3 no COTAHIST da B3; os R$ 78 bi equivalem às 948,6 mi de ações a R$ 82,2, preço de 10/07 a 17/08/20. Sem a Magalu = (valorização − marcação do bloco) ÷ (AuC − bloco). Bottom-up como no slide anterior. Candidatos do 1T21: controladores no VLMO com bloco de R$ 10-70 bi; a custódia em si não é pública. Cosan: 140,5 mi de CSAN3 entregues ao controlador (VLMO) a R$ 90,7 em 08/03/21; até 213,3 mi contando as ADS (F-4/A da Cosan S.A., SEC, 21/12/20).</div>
 </div></body></html>'''
 out = os.path.join(HERE, "auc_ex_magalu.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| acum nossa", round(C["nossa_conta_pct"][-1], 1), "ajust", round(C["ajustada_pct"][-1], 1), "bu", round(C["bottom_up_pct"][-1], 1), "| 2021", round(a21n, 1), round(a21a, 1), "| gap", round(gapN, 1), round(gapA, 1), "| pico", round(pico, 1), "mtm", round(mtm, 1))
