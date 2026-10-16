@@ -12,7 +12,7 @@ SLIDES = [  # (arquivo, título curto para os pontos)
     ("slides/auc_vs_fundos.html", "AuC vs fundos"),
     ("slides/auc_vs_indice_pf.html", "AuC vs índice PF"),
     ("slides/auc_vs_curva.html", "AuC vs carteira na curva"),
-    ("slides/auc_ex_magalu.html", "AuC sem a Magalu"),
+    ("slides/auc_ex_magalu.html", "AuC sem custódias de controladores"),
     ("slides/spread_credito.html", "Spread de crédito"),
     ("slides/spread_incentivadas.html", "Spread das incentivadas"),
     ("slides/ib_historico.html", "Mercado de capitais"),
