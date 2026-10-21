@@ -119,9 +119,9 @@ def _arquivos(base_hist, nome_atual):
     return [a for a in arqs if os.path.exists(a)]
 
 # ---------------------------------------------------------------- IDEX-Infra (histórico + janela atual)
-def idex_infra():
+def idex_infra(arqs=None):
     out = {}
-    for p in _arquivos(["idex_infra_geral_datafile_wb20260327.xlsx"], "idex_infra_geral_datafile.xlsx"):
+    for p in arqs or _arquivos(["idex_infra_geral_datafile_wb20260327.xlsx"], "idex_infra_geral_datafile.xlsx"):
         df = pd.read_excel(p, usecols=["Data", "Peso no índice (%)", "Duration", "MID spread (Bps/NTNB)"])
         df["Data"] = pd.to_datetime(df["Data"]).dt.date.astype(str)
         for d, g in df.groupby("Data"):
@@ -137,9 +137,9 @@ def idex_infra():
                       "infra_dur": float((g["Duration"] * w).sum() / w.sum())}
     return out
 
-def idex_cdi():
+def idex_cdi(arqs=None):
     out = {}
-    for p in _arquivos(["idex_cdi_geral_datafile.xlsx"], "idex_cdi_geral_datafile_s3.xlsx"):
+    for p in arqs or _arquivos(["idex_cdi_geral_datafile.xlsx"], "idex_cdi_geral_datafile_s3.xlsx"):
         df = pd.read_excel(p, usecols=["Data", "Peso no índice (%)", "Spread de compra (%)"])
         df["Data"] = pd.to_datetime(df["Data"]).dt.date.astype(str)
         df = df[df["Data"] >= "2020-07-01"].dropna()
@@ -191,6 +191,20 @@ def ida():
         if rec: out[d] = rec
     return out
 
+# ---------------------------------------------------------------- emenda do buraco do arquivo Geral com o IDEX Core
+# O Wayback tem o arquivo Core (papéis mais líquidos) de 06/06/26, com histórico até 03/06/26. O Core anda junto do Geral
+# (correlação 0,98 do spread mediano) com diferença de nível estável; a emenda soma ao Core a diferença média Geral − Core dos
+# 12 meses anteriores ao fim do histórico Geral, coluna a coluna. Vai com fonte "IDEX Core ajustado" (marcada no gráfico).
+CORE_INFRA, CORE_CDI = "idex_infra_core_datafile_wb20260606.xlsx", "idex_cdi_core_datafile_wb20260606.xlsx"
+
+def emenda(geral, core, fim_hist):
+    """Datas do core depois de `fim_hist` que faltam no geral, com o nível ajustado. geral/core: {data: {col: v}}."""
+    ini = (dt.date.fromisoformat(fim_hist) - dt.timedelta(days=365)).isoformat()
+    comuns = [d for d in core if d in geral and ini <= d <= fim_hist]
+    cols = [k for k in next(iter(core.values()))]
+    off = {k: statistics.mean(geral[d][k] - core[d][k] for d in comuns) for k in cols}
+    return {d: {k: v + off[k] for k, v in core[d].items()} for d in core if d > fim_hist and d not in geral}, off, len(comuns)
+
 def main():
     inf, cdi, anb = idex_infra(), idex_cdi(), ida()
     linhas = []
@@ -200,6 +214,52 @@ def main():
         if d in cdi: r["di_spread"] = cdi[d]
         if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
         linhas.append(r)
+    # emenda: o fim do histórico Geral é a última data antes do buraco (arquivo Wayback/site)
+    fim_inf = max(d for d in inf if d < "2026-09-01"); fim_cdi = max(d for d in cdi if d < "2026-09-01")
+    ei, oi, ni = emenda(inf, idex_infra([os.path.join(IDEX, CORE_INFRA)]), fim_inf)
+    ec, oc, nc = emenda({d: {"di": v} for d, v in cdi.items()}, {d: {"di": v} for d, v in idex_cdi([os.path.join(IDEX, CORE_CDI)]).items()}, fim_cdi)
+    print(f"  emenda Core: infra {len(ei)} dias após {fim_inf} (ajuste {', '.join(f'{k} {v:+.2f}' for k, v in oi.items())}; {ni} dias comuns) | "
+          f"CDI {len(ec)} dias após {fim_cdi} (ajuste {oc['di']:+.2f}; {nc} dias comuns)")
+    datas = {r["data"] for r in linhas}
+    for d in sorted(set(ei) | set(ec)):
+        if d in datas: continue                                     # (não acontece: o core só entra onde o geral falta)
+        r = {"data": d, "fonte": "IDEX Core ajustado", **ei.get(d, {})}
+        if d in ec: r["di_spread"] = ec[d]["di"]
+        elif d in cdi: r["di_spread"] = cdi[d]
+        if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
+        linhas.append(r)
+    # datas do geral entre o fim do histórico infra e o fim do CDI ficam com infra do core
+    for r in linhas:
+        if r["fonte"] == "IDEX" and r["data"] in ei and "infra_gu" not in r:
+            r.update(ei[r["data"]]); r["fonte"] = "IDEX Core ajustado"
+            if "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
+    # o que o Core não alcança (04/06 → véspera do arquivo atual) vem do gráfico da Régia no Valor, digitalizado
+    # (dados_regia_valor_digitaliza.py). Defasagem de datas e nível (IDA × IDEX) acertados contra o IDEX: a defasagem que minimiza
+    # o erro em toda a sobreposição e a diferença média dos 12 meses antes do buraco. Fonte "Régia (Valor) ajustado".
+    pr = os.path.join(DATA, "regia_valor_digitalizado.csv")
+    if os.path.exists(pr):
+        Rg = pd.read_csv(pr, parse_dates=["data"]).set_index("data").sort_index()
+        Ix = pd.DataFrame([r for r in linhas if r["fonte"] == "IDEX"]).assign(data=lambda x: pd.to_datetime(x.data)).set_index("data").sort_index()
+        def junta(lag):
+            g = Rg.copy(); g.index = g.index + pd.Timedelta(days=lag)
+            return pd.merge_asof(g, Ix[["infra_gu", "di_spread"]], left_index=True, right_index=True, suffixes=("_r", "_i"), tolerance=pd.Timedelta(days=3)).dropna()
+        def erro(j): return float(((j.infra_gu_r - j.infra_gu_i) ** 2).mean() ** .5 + ((j.di_spread_r - j.di_spread_i) ** 2).mean() ** .5)
+        lag = min(range(-20, 25), key=lambda L: erro(junta(L)))
+        j = junta(lag); fim_e = max(r["data"] for r in linhas if r["fonte"] != "ANBIMA IDA" and r["data"] < "2026-09-01")
+        j12 = j[(j.index > pd.Timestamp(fim_inf) - pd.Timedelta(days=365)) & (j.index <= pd.Timestamp(fim_inf))]
+        o_gu, o_di = float((j12.infra_gu_i - j12.infra_gu_r).mean()), float((j12.di_spread_i - j12.di_spread_r).mean())
+        ini_atual = min(r["data"] for r in linhas if r["fonte"] == "IDEX" and r["data"] > "2026-09-01")
+        g = Rg.copy(); g.index = g.index + pd.Timedelta(days=lag)
+        g = g[(g.index > pd.Timestamp(fim_e)) & (g.index < pd.Timestamp(ini_atual))]
+        for d, x in g.iterrows():
+            r = {"data": d.date().isoformat(), "fonte": "Régia (Valor) ajustado"}
+            if pd.notna(x.infra_gu): r["infra_gu"] = float(x.infra_gu) + o_gu
+            if pd.notna(x.di_spread): r["di_spread"] = float(x.di_spread) + o_di
+            if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
+            linhas.append(r)
+        print(f"  Régia (Valor): defasagem {lag:+d} dias, ajuste de nível gross-up {o_gu:+.2f} e DI {o_di:+.2f} p.p. ({len(j12)} pontos), "
+              f"{len(g)} pontos de {fim_e} a {ini_atual} (exclusive)")
+    linhas.sort(key=lambda r: (r["fonte"] == "ANBIMA IDA", r["data"]))
     for d in sorted(anb):
         r = {"data": d, "fonte": "ANBIMA IDA", **anb[d]}
         if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
@@ -209,7 +269,7 @@ def main():
         w = csv.DictWriter(f, fieldnames=cols); w.writeheader()
         for r in linhas:
             w.writerow({k: (round(r[k], 4) if isinstance(r.get(k), float) else r.get(k, "")) for k in cols})
-    for fonte in ("IDEX", "ANBIMA IDA"):
+    for fonte in ("IDEX", "IDEX Core ajustado", "Régia (Valor) ajustado", "ANBIMA IDA"):
         L = [r for r in linhas if r["fonte"] == fonte]
         print(f"{fonte}: {len(L)} dias, {L[0]['data']} → {L[-1]['data']}")
         for r in L[-2:]:
