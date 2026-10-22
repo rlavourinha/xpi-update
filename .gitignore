@@ -65,3 +65,4 @@ data/b3_rlp_diario_long.csv
 !data/triagem_1t21_controladores.csv
 !data/precos_csan3_rail3_diario.csv
 !data/regia_valor_digitalizado.csv
+!premissa_*.py
