@@ -196,6 +196,7 @@ def ida():
 # (correlação 0,98 do spread mediano) com diferença de nível estável; a emenda soma ao Core a diferença média Geral − Core dos
 # 12 meses anteriores ao fim do histórico Geral, coluna a coluna. Vai com fonte "IDEX Core ajustado" (marcada no gráfico).
 CORE_INFRA, CORE_CDI = "idex_infra_core_datafile_wb20260606.xlsx", "idex_cdi_core_datafile_wb20260606.xlsx"
+USAR_CORE = False   # 22/10/26: o usuário preferiu preencher o buraco inteiro com o gráfico da Régia (o Core fica disponível aqui)
 
 def emenda(geral, core, fim_hist):
     """Datas do core depois de `fim_hist` que faltam no geral, com o nível ajustado. geral/core: {data: {col: v}}."""
@@ -216,9 +217,11 @@ def main():
         linhas.append(r)
     # emenda: o fim do histórico Geral é a última data antes do buraco (arquivo Wayback/site)
     fim_inf = max(d for d in inf if d < "2026-09-01"); fim_cdi = max(d for d in cdi if d < "2026-09-01")
-    ei, oi, ni = emenda(inf, idex_infra([os.path.join(IDEX, CORE_INFRA)]), fim_inf)
-    ec, oc, nc = emenda({d: {"di": v} for d, v in cdi.items()}, {d: {"di": v} for d, v in idex_cdi([os.path.join(IDEX, CORE_CDI)]).items()}, fim_cdi)
-    print(f"  emenda Core: infra {len(ei)} dias após {fim_inf} (ajuste {', '.join(f'{k} {v:+.2f}' for k, v in oi.items())}; {ni} dias comuns) | "
+    ei, ec = {}, {}
+    if USAR_CORE:
+      ei, oi, ni = emenda(inf, idex_infra([os.path.join(IDEX, CORE_INFRA)]), fim_inf)
+      ec, oc, nc = emenda({d: {"di": v} for d, v in cdi.items()}, {d: {"di": v} for d, v in idex_cdi([os.path.join(IDEX, CORE_CDI)]).items()}, fim_cdi)
+      print(f"  emenda Core: infra {len(ei)} dias após {fim_inf} (ajuste {', '.join(f'{k} {v:+.2f}' for k, v in oi.items())}; {ni} dias comuns) | "
           f"CDI {len(ec)} dias após {fim_cdi} (ajuste {oc['di']:+.2f}; {nc} dias comuns)")
     datas = {r["data"] for r in linhas}
     for d in sorted(set(ei) | set(ec)):
@@ -233,7 +236,7 @@ def main():
         if r["fonte"] == "IDEX" and r["data"] in ei and "infra_gu" not in r:
             r.update(ei[r["data"]]); r["fonte"] = "IDEX Core ajustado"
             if "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
-    # o que o Core não alcança (04/06 → véspera do arquivo atual) vem do gráfico da Régia no Valor, digitalizado
+    # o buraco (ou o que o Core não alcança, se USAR_CORE) vem do gráfico da Régia no Valor, digitalizado
     # (dados_regia_valor_digitaliza.py). Defasagem de datas e nível (IDA × IDEX) acertados contra o IDEX: a defasagem que minimiza
     # o erro em toda a sobreposição e a diferença média dos 12 meses antes do buraco. Fonte "Régia (Valor) ajustado".
     pr = os.path.join(DATA, "regia_valor_digitalizado.csv")
@@ -245,7 +248,7 @@ def main():
             return pd.merge_asof(g, Ix[["infra_gu", "di_spread"]], left_index=True, right_index=True, suffixes=("_r", "_i"), tolerance=pd.Timedelta(days=3)).dropna()
         def erro(j): return float(((j.infra_gu_r - j.infra_gu_i) ** 2).mean() ** .5 + ((j.di_spread_r - j.di_spread_i) ** 2).mean() ** .5)
         lag = min(range(-20, 25), key=lambda L: erro(junta(L)))
-        j = junta(lag); fim_e = max(r["data"] for r in linhas if r["fonte"] != "ANBIMA IDA" and r["data"] < "2026-09-01")
+        j = junta(lag); fim_e = max(r["data"] for r in linhas if r["fonte"] != "ANBIMA IDA" and r["data"] < "2026-09-01" and "infra_gu" in r)
         j12 = j[(j.index > pd.Timestamp(fim_inf) - pd.Timedelta(days=365)) & (j.index <= pd.Timestamp(fim_inf))]
         o_gu, o_di = float((j12.infra_gu_i - j12.infra_gu_r).mean()), float((j12.di_spread_i - j12.di_spread_r).mean())
         ini_atual = min(r["data"] for r in linhas if r["fonte"] == "IDEX" and r["data"] > "2026-09-01")
@@ -254,8 +257,12 @@ def main():
         for d, x in g.iterrows():
             r = {"data": d.date().isoformat(), "fonte": "Régia (Valor) ajustado"}
             if pd.notna(x.infra_gu): r["infra_gu"] = float(x.infra_gu) + o_gu
-            if pd.notna(x.di_spread): r["di_spread"] = float(x.di_spread) + o_di
-            if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
+            if d > pd.Timestamp(max([fim_cdi] + list(ec))):            # onde há DI real do IDEX, a linha do DI fica a real
+                if pd.notna(x.di_spread): r["di_spread"] = float(x.di_spread) + o_di
+                if "infra_gu" in r and "di_spread" in r: r["dif"] = r["infra_gu"] - r["di_spread"]
+            elif "infra_gu" in r:
+                ks = [k for k in cdi if k <= d.date().isoformat()]
+                if ks: r["dif"] = r["infra_gu"] - cdi[max(ks)]                   # diferença contra o DI real do dia (ou do anterior)
             linhas.append(r)
         print(f"  Régia (Valor): defasagem {lag:+d} dias, ajuste de nível gross-up {o_gu:+.2f} e DI {o_di:+.2f} p.p. ({len(j12)} pontos), "
               f"{len(g)} pontos de {fim_e} a {ini_atual} (exclusive)")
@@ -271,6 +278,7 @@ def main():
             w.writerow({k: (round(r[k], 4) if isinstance(r.get(k), float) else r.get(k, "")) for k in cols})
     for fonte in ("IDEX", "IDEX Core ajustado", "Régia (Valor) ajustado", "ANBIMA IDA"):
         L = [r for r in linhas if r["fonte"] == fonte]
+        if not L: continue
         print(f"{fonte}: {len(L)} dias, {L[0]['data']} → {L[-1]['data']}")
         for r in L[-2:]:
             print("   ", {k: (round(v, 2) if isinstance(v, float) else v) for k, v in r.items()})
