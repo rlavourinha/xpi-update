@@ -17,7 +17,7 @@ def linha(i, cab=9):
     return s[s.index.notna()].groupby(level=0).last()
 RI = pd.DataFrame({"adtv_avista": linha(10), "adtv_acoes": linha(18, 17), "adtv_etf": linha(19, 17), "adtv_bdr": linha(20, 17),
                    "adtv_fundos": linha(21, 17), "mcap_bi": linha(67, 66), "n_empresas": linha(68, 66), "pf_part": linha(57, 56),
-                   "inst_part": linha(58, 56), "estr_part": linha(59, 56), "coloc_part": linha(74, 72)})
+                   "inst_part": linha(58, 56), "estr_part": linha(59, 56), "emp_part": linha(60, 56), "ifin_part": linha(61, 56), "coloc_part": linha(74, 72)})
 RI.index = RI.index.to_period("M")
 RI.loc[:, ["adtv_acoes", "adtv_etf", "adtv_bdr", "adtv_fundos"]] = RI[["adtv_acoes", "adtv_etf", "adtv_bdr", "adtv_fundos"]].replace(0, np.nan)
 # ---- COTAHIST: volume do mercado à vista por mês e pregões

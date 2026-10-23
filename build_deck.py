@@ -9,6 +9,7 @@ SLIDES = [  # (arquivo, título curto para os pontos)
     ("slides/fundos_concentracao.html", "Concentração"),
     ("slides/alocacao_clientes.html", "Alocação dos clientes"),
     ("slides/primeiro_turno.html", "1º turno na B3"),
+    ("slides/b3_volume_investidor.html", "Volume por investidor"),
     ("slides/auc_vs_fundos.html", "AuC vs régua de mercado"),
     ("slides/auc_vs_indice_pf.html", "AuC vs índice PF"),
     ("slides/auc_vs_curva.html", "AuC vs carteira na curva"),
