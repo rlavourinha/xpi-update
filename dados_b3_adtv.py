@@ -43,6 +43,26 @@ k = (R.adtv_avista / R.adtv_cotahist).loc[ult_ri - 11:ult_ri]
 R["fonte_adtv"] = np.where(R.adtv_avista.notna(), "B3 RI", None)
 fut = R.adtv_avista.isna() & R.adtv_cotahist.notna()          # meses depois do RI e buracos do RI (nov/24)
 R.loc[fut, "adtv_avista"] = R.loc[fut, "adtv_cotahist"] * k.mean(); R.loc[fut & R.adtv_avista.notna(), "fonte_adtv"] = "COTAHIST/BDI calibrado"
+# ---- participação por investidor dos meses depois do RI: BDI SharesInvesVolum (acumulado do mês até o último pregão coletado;
+# (compras + vendas) de cada tipo ÷ (compras + vendas) totais). Set/26 bate com o RI em ~0,2 p.p. por tipo. "Outros" = empresas.
+import glob, re
+TIPO_BDI = {"Investidores Individuais": "pf_part", "Institucionais": "inst_part", "Investidor Estrangeiro": "estr_part", "Outros": "emp_part"}
+ult_part = RI.pf_part.dropna().index.max()
+R["fonte_part"] = np.where(R.pf_part.notna(), "B3 RI", None); R["part_ate"] = None
+ult_dia = {}
+for f in sorted(glob.glob(os.path.join(HERE, "fontes", "setor", "b3", "bdi", "raw", "SharesInvesVolum_*.json"))):
+    d = pd.Timestamp(re.search(r"(\d{4}-\d{2}-\d{2})", f).group(1)); ult_dia[d.to_period("M")] = (d, f)
+for mes, (d, f) in ult_dia.items():
+    if mes <= ult_part or mes not in R.index:
+        continue
+    vals = json.load(open(f, encoding="utf-8")).get("values") or []
+    tot = sum(v[1] + v[3] for v in vals)
+    if not tot:
+        continue
+    for v in vals:
+        col = "ifin_part" if v[0].startswith("Institui") else TIPO_BDI.get(v[0])
+        if col: R.loc[mes, col] = (v[1] + v[3]) / tot
+    R.loc[mes, "fonte_part"] = "BDI acumulado do mês"; R.loc[mes, "part_ate"] = d.date().isoformat()
 # ---- Selic meta (SGS 4189, taxa anualizada do mês) e Ibovespa
 try:
     s = json.loads(urllib.request.urlopen(urllib.request.Request("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json&dataInicial=01/01/2000", headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"}), timeout=60).read())

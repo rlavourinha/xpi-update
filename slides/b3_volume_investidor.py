@@ -4,12 +4,20 @@ mercado à vista e derivativos de ações, B3 RI). Dado mensal fino e média mó
 Dados: data/b3_adtv_mensal.csv (dados_b3_adtv.py). Gera slides/b3_volume_investidor.html."""
 import csv, os, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v2.3 · 23/10/2026"
+VERSAO = "v2.4 · 27/10/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 R = [r for r in csv.DictReader(open(os.path.join(DATA, "b3_adtv_mensal.csv"), encoding="utf-8")) if r["pf_part"] and r["adtv_avista"]]
 TIPOS = [("estr_part", "Estrangeiro", "var(--s1)"), ("inst_part", "Institucional local", "var(--s2)"), ("pf_part", "Pessoa física", "var(--s3)"),
          ("ifin_part", "Instituições financeiras", "var(--s4)"), ("emp_part", "Empresas", "var(--s5)")]
 M = [dt.date(int(r["mes"][:4]), int(r["mes"][5:7]), 15) for r in R]
+MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+def rot(m): return f"{MESES[int(m[5:7]) - 1]}/{m[2:4]}"
+# último mês do RI e, depois dele, o mês corrente parcial pelo BDI (participação acumulada do mês, ADTV COTAHIST/BDI calibrado)
+RIM = [r["mes"] for r in R if r.get("fonte_part") in ("B3 RI", None, "")]; ULT_RI = RIM[-1]
+PARC = R[-1] if R[-1]["mes"] > ULT_RI else None
+ATE = f"{PARC['part_ate'][8:10]}/{PARC['part_ate'][5:7]}" if PARC else ""
+ULT_ROT = rot(R[-1]["mes"]) + (f" parcial, até {ATE}" if PARC else "")
+def menos11(m): a, b = int(m[:4]), int(m[5:7]) - 11; return f"{a - (b <= 0)}-{(b - 1) % 12 + 1:02d}"
 VOL = {k: [float(r["adtv_avista"]) * float(r[k] or 0) / 1e9 for r in R] for k, _, _ in TIPOS}
 PCT = {k: [float(r[k] or 0) * 100 for r in R] for k, _, _ in TIPOS}
 def mm12(v):
@@ -31,10 +39,11 @@ n = len(R); d0, d1 = dt.date(2000, 1, 1), dt.date(2026, 12, 31)
 
 # ---- A: R$ bi por dia, por tipo ----
 W, H, ML, MR, MT, MB = 720, 450, 34, 150, 12, 26
-vmax = 24
+vmax = max(24, -(-max(max(v) for v in VOL.values()) // 8) * 8)   # eixo cobre o maior mês (out/26 parcial: estrangeiro R$ 37 bi/dia)
+PASSO = 4 if vmax <= 24 else 8
 def X(d): return ML + (d - d0).days / (d1 - d0).days * (W - ML - MR)
 def Y(v): return MT + (vmax - min(v, vmax)) / vmax * (H - MT - MB)
-g = "".join(f'<line x1="{ML}" y1="{Y(t):.1f}" x2="{W-MR}" y2="{Y(t):.1f}" class="grid"/><text x="{ML-6}" y="{Y(t)+4:.1f}" class="ax" text-anchor="end">{t}</text>' for t in range(0, vmax + 1, 4))
+g = "".join(f'<line x1="{ML}" y1="{Y(t):.1f}" x2="{W-MR}" y2="{Y(t):.1f}" class="grid"/><text x="{ML-6}" y="{Y(t)+4:.1f}" class="ax" text-anchor="end">{t}</text>' for t in range(0, int(vmax) + 1, PASSO))
 for y in range(2000, 2027, 4): g += f'<text x="{X(dt.date(y,1,1)):.1f}" y="{H-8}" class="ax" text-anchor="middle">{y}</text>'
 for k, nome, cor in TIPOS:                                                # mensal, fino e claro
     g += f'<polyline points="{" ".join(f"{X(M[i]):.1f},{Y(VOL[k][i]):.1f}" for i in range(n))}" fill="none" stroke="{cor}" stroke-width=".7" opacity=".35"/>'
@@ -44,13 +53,14 @@ def mm12n(v):
     return [sum(v[i - 11:i + 1]) / 12 if i >= 11 and all(x is not None for x in v[i - 11:i + 1]) else None for i in range(len(v))]
 VM["coloc"] = mm12n(COLOC)
 SERIES = TIPOS + [("coloc", "Co-location (HFT)", "var(--ink2)")]
-ordA = sorted(SERIES, key=lambda t: -VM[t[0]][-1])
-ylabA = lay([Y(VM[k][-1]) for k, _, _ in ordA], 16, Y(0) - 10)            # rótulo inteiro acima da linha do zero
+def ultimo(v): return next(x for x in reversed(v) if x is not None)
+ordA = sorted(SERIES, key=lambda t: -ultimo(VM[t[0]]))
+ylabA = lay([Y(ultimo(VM[k])) for k, _, _ in ordA], 16, Y(0) - 10)            # rótulo inteiro acima da linha do zero
 for (k, nome, cor), y in zip(ordA, ylabA):                                   # MM12, forte, com rótulo no fim
     pts = [(M[i], VM[k][i]) for i in range(n) if VM[k][i] is not None]
     dash = ' stroke-dasharray="5 4"' if k == "coloc" else ""
     g += f'<polyline points="{" ".join(f"{X(d):.1f},{Y(v):.1f}" for d, v in pts)}" fill="none" stroke="{cor}" stroke-width="{1.6 if k == "coloc" else 2.2}" stroke-linejoin="round"{dash}/>'
-    g += f'<circle cx="{X(pts[-1][0]):.1f}" cy="{Y(pts[-1][1]):.1f}" r="3" fill="{cor}" stroke="var(--surface)" stroke-width="1.5"><title>{nome}, MM12 ago/26: R$ {br(pts[-1][1])} bi/dia</title></circle>'
+    g += f'<circle cx="{X(pts[-1][0]):.1f}" cy="{Y(pts[-1][1]):.1f}" r="3" fill="{cor}" stroke="var(--surface)" stroke-width="1.5"><title>{nome}, MM12 {rot(R[[i for i in range(n) if VM[k][i] is not None][-1]]["mes"])}: R$ {br(pts[-1][1])} bi/dia</title></circle>'
     g += f'<text x="{X(pts[-1][0])+8:.1f}" y="{y+4:.1f}" class="lab"><tspan class="num">{br(pts[-1][1])}</tspan> {nome}</text>'
 svgA = f'<svg viewBox="0 0 {W} {H}" width="100%" role="img" aria-label="Volume médio diário do mercado à vista da B3 por tipo de investidor, R$ bilhões, mensal desde 2000, com média móvel de 12 meses">{g}</svg>'
 
@@ -73,8 +83,9 @@ svgB = f'<svg viewBox="0 0 {W2} {H2}" width="100%" role="img" aria-label="Partic
 # ---- C: tabela de períodos (média dos meses, R$ bi/dia) ----
 def media(k, a, b):
     v = [VOL[k][i] for i in range(n) if a <= R[i]["mes"] <= b]; return sum(v) / len(v)
-PER = [("2007", "2007-01", "2007-12"), ("2019", "2019-01", "2019-12"), ("2021", "2021-01", "2021-12"), ("2025", "2025-01", "2025-12"), ("12m até ago/26", "2025-09", "2026-08")]
-cab = "".join(f"<th>{p.replace(' ago/', '<br>ago/')}</th>" for p, _, _ in PER)
+PER = [("2007", "2007-01", "2007-12"), ("2019", "2019-01", "2019-12"), ("2021", "2021-01", "2021-12"), ("2025", "2025-01", "2025-12"),
+       (f"12m até {rot(ULT_RI)}", menos11(ULT_RI), ULT_RI)] + ([(f"{rot(PARC['mes'])} até {ATE}", PARC["mes"], PARC["mes"])] if PARC else [])
+cab = "".join(f"<th>{p.replace(' até ', '<br>até ')}</th>" for p, _, _ in PER)
 lin = "".join(f'<tr><td><i style="background:{cor}"></i>{nome}</td>' + "".join(f"<td>{br(media(k, a, b))}</td>" for _, a, b in PER) + "</tr>" for k, nome, cor in TIPOS)
 lin += '<tr class="tot"><td>Total</td>' + "".join(f"<td>{br(sum(media(k, a, b) for k, _, _ in TIPOS))}</td>" for _, a, b in PER) + "</tr>"
 def media_coloc(a, b):
@@ -86,8 +97,11 @@ def cel_coloc(a, b):
     return f"<td>{br(c)} <span class=\"pp\">({br(100 * c / sum(media(k, a, b) for k, _, _ in TIPOS), 0)}%)</span></td>"
 lin += '<tr class="memo"><td><i class="dash"></i>dos quais co-location</td>' + "".join(cel_coloc(a, b) for _, a, b in PER) + "</tr>"
 # números do título e da caixa
-e12, p12, t12 = media("estr_part", "2025-09", "2026-08"), media("pf_part", "2025-09", "2026-08"), sum(media(k, "2025-09", "2026-08") for k, _, _ in TIPOS)
+A12 = menos11(ULT_RI)
+e12, p12, t12 = media("estr_part", A12, ULT_RI), media("pf_part", A12, ULT_RI), sum(media(k, A12, ULT_RI) for k, _, _ in TIPOS)
 p21, t21 = media("pf_part", "2021-01", "2021-12"), sum(media(k, "2021-01", "2021-12") for k, _, _ in TIPOS)
+PARC_FONTE = (f"; {rot(PARC['mes'])} parcial (pregões até {ATE}): participação acumulada do mês no Boletim Diário do Mercado da B3 (BDI, mercado à vista; em set/26 bate com o RI em até 0,25 p.p. por tipo) e ADTV pelo COTAHIST/BDI calibrado pela razão com o RI dos 12 meses anteriores" if PARC else "")
+NOTA_PARC = f' · último ponto: {ULT_ROT}' if PARC else ""
 html = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Volume por investidor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -108,14 +122,14 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .ax{{fon
 </style></head><body><div class="slide">
 <header><div><div class="kicker">parte 1 · indústria · volume da bolsa</div><h1>O estrangeiro faz {br(PM["estr_part"][-1],0)}% do volume da B3; a pessoa física, {br(PM["pf_part"][-1],0)}%</h1></div><span class="chip">{VERSAO}</span></header>
 <div class="grid2">
- <div class="card"><h2>Volume médio diário à vista por tipo de investidor, R$ bi (mensal fino, média 12m forte)</h2><div class="nota">tracejado: co-location (HFT e algoritmos), já incluído nos tipos</div>{svgA}</div>
+ <div class="card"><h2>Volume médio diário à vista por tipo de investidor, R$ bi (mensal fino, média 12m forte)</h2><div class="nota">tracejado: co-location (HFT e algoritmos), já incluído nos tipos{NOTA_PARC}</div>{svgA}</div>
  <div class="col">
   <div class="card"><h2>Participação no volume, % (média de 12 meses)</h2>{svgB}</div>
   <div class="card"><h2>Média do período, R$ bi por dia</h2><table><tr><th></th>{cab}</tr>{lin}</table></div>
  </div>
 </div>
-<div class="green">Nos 12 meses até ago/26 a bolsa girou R$ {br(t12)} bi por dia, e a pessoa física respondeu por R$ {br(p12)} bi, metade dos R$ {br(p21)} bi de 2021, com volume total parecido (R$ {br(t12)} bi contra R$ {br(t21)} bi): o volume que cresceu é de estrangeiro e de máquina, não da pessoa física, o público da XP.</div>
-<div class="fonte">Fonte: B3 RI, planilha de dados operacionais (aba Renda Variável & Empréstimo): ADTV do mercado à vista (ações, ETFs, BDRs e fundos listados) e participação dos investidores no mercado à vista e derivativos sobre ações, mensal, jan/2000 a ago/2026 (último mês publicado). Volume por tipo = ADTV à vista × participação. Média móvel de 12 meses a partir de dez/2000. Co-location (HFT e algoritmos, linha tracejada e linha "dos quais") é um recorte transversal: o mesmo volume já está dentro dos tipos, sobretudo estrangeiro e institucional, e não soma com eles; série da B3 desde set/2010 (participação do co-location no volume à vista).</div>
+<div class="green">Nos 12 meses até {rot(ULT_RI)} a bolsa girou R$ {br(t12)} bi por dia, e a pessoa física respondeu por R$ {br(p12)} bi, metade dos R$ {br(p21)} bi de 2021, com volume total parecido (R$ {br(t12)} bi contra R$ {br(t21)} bi): o volume que cresceu é de estrangeiro e de máquina, não da pessoa física, o público da XP.</div>
+<div class="fonte">Fonte: B3 RI, planilha de dados operacionais (aba Renda Variável & Empréstimo): ADTV do mercado à vista (ações, ETFs, BDRs e fundos listados) e participação dos investidores no mercado à vista e derivativos sobre ações, mensal, jan/2000 a {rot(ULT_RI)} (último mês publicado){PARC_FONTE}. Volume por tipo = ADTV à vista × participação. Média móvel de 12 meses a partir de dez/2000. Co-location (HFT e algoritmos, linha tracejada e linha "dos quais") é um recorte transversal: o mesmo volume já está dentro dos tipos, sobretudo estrangeiro e institucional, e não soma com eles; série da B3 desde set/2010 (participação do co-location no volume à vista).</div>
 </div></body></html>'''
 out = os.path.join(HERE, "b3_volume_investidor.html"); open(out, "w", encoding="utf-8").write(html)
 print("ok", out, "| 12m: total", round(t12, 1), "estr", round(e12, 1), "pf", round(p12, 1), "| 2021 total", round(t21, 1), "pf", round(p21, 1))
