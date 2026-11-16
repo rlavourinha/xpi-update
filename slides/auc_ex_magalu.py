@@ -5,7 +5,7 @@ bloco da Rumo da Cosan); marcação a mercado tirada do numerador e os blocos ti
 Dados: data/xp_auc_valorizacao_ex_magalu.csv (analise_custodias_controladores.py). Gera slides/auc_ex_magalu.html."""
 import csv, os
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v2.0 · 16/10/2026"
+VERSAO = "v2.1 · 16/11/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 T = list(csv.DictReader(open(os.path.join(DATA, "xp_auc_valorizacao_ex_magalu.csv"), encoding="utf-8")))
 Q = [r[""] for r in T]; n = len(Q)
@@ -112,7 +112,7 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
 <div class="grid2">
  <div class="card"><h2>Valorização do AuC de varejo por trimestre, %</h2><div class="legend"><span><i style="background:var(--s1)"></i>Nossa conta (ΔAuC − captação, sem as captações extraordinárias)</span><span><i style="background:var(--s2)"></i>Sem Magalu e Ometto</span></div>{svgA}</div>
  <div class="col">
-  <div class="card"><h2>Acumulado desde o fim de 2018, base 100, até o 2T26</h2>{svgB}</div>
+  <div class="card"><h2>Acumulado desde o fim de 2018, base 100, até o 3T26</h2>{svgB}</div>
   <div class="card"><h2>Impacto na valorização, R$ bi por ano  (* 2026 = 1º semestre)</h2><div class="legend"><span><i style="background:var(--s3)"></i>Magalu</span><span><i style="background:var(--s4)"></i>Grupo Ometto (Cosan + Rumo)</span></div>{svgC}</div>
  </div>
 </div>

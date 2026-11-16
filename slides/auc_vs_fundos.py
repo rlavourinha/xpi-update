@@ -4,7 +4,7 @@
 Dados: data/xp_auc_nowcast.csv. Gera slides/auc_vs_fundos.html."""
 import csv, os
 HERE = os.path.dirname(os.path.abspath(__file__)); DATA = os.path.join(HERE, "..", "data")
-VERSAO = "v2.0 · 16/10/2026"
+VERSAO = "v2.1 · 16/11/2026"
 def br(x, d=1): return f"{x:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 rows = [r for r in csv.DictReader(open(os.path.join(DATA, "xp_auc_nowcast.csv"), encoding="utf-8")) if r["bottom-up"] and r["AuC varejo"]]
 Q = [r[""] for r in rows]; n = len(Q)
@@ -92,7 +92,7 @@ h1{{font:600 26px/1.1 Fraunces,Georgia,serif;margin:4px 0 0}} .chip{{font-size:1
 svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{stroke:var(--ink3);stroke-width:1}} svg .ax{{font:11px Inter,system-ui,sans-serif;fill:var(--ink3)}} svg .lab{{font:12px Inter,system-ui,sans-serif;fill:var(--ink)}} svg .lab2{{font:11px Inter,system-ui,sans-serif;fill:var(--ink2)}} svg .num{{font-weight:600}}
 @media (max-width:860px){{.grid2{{grid-template-columns:1fr}}h1{{font-size:24px}}}}
 </style></head><body><div class="slide">
-<header><div><div class="kicker">parte 3 · companhia</div><h1>O AuC da XP rende {br(-gm,1)} pp/tri menos que a régua de mercado</h1></div><span class="chip">{VERSAO} · RI 2T26</span></header>
+<header><div><div class="kicker">parte 3 · companhia</div><h1>O AuC da XP rende {br(-gm,1)} pp/tri menos que a régua de mercado</h1></div><span class="chip">{VERSAO} · RI 3T26</span></header>
 <div class="card"><h2>Por trimestre, %: valorização implícita do AuC de varejo (ΔAuC − captação líquida) vs régua de mercado ponderada pelo mix da XP</h2>
 <div class="legend"><span><i style="background:var(--s1)"></i>AuC de varejo da XP (implícita)</span><span><i style="background:var(--s2)"></i>Régua de mercado (bottom-up)</span><span><i class="l" style="background:var(--s3)"></i>CDI</span></div>{svgA}</div>
 <div class="grid2">
@@ -101,6 +101,6 @@ svg{{display:block}} svg .grid{{stroke:var(--grid);stroke-width:1}} svg .base{{s
  <div class="fonte" style="margin-top:6px">Correlação trimestral desde 2023: {br(corr,2)}. Correlação com o trimestre seguinte: zero. A cota diz o que o AuC fez, não o que fará.</div></div>
 </div>
 <div class="green">A direção bate (correlação {br(corr,2)}), o nível não: desde 2023 o AuC reportado valoriza {br(-gm,1)} pp por trimestre, uns {br(-gm*4,0)} pp por ano, menos que a régua de mercado (Ibovespa, CDI e fundos da XP no mix da XP). Ou a captação líquida divulgada contém renda e rotação de produto, ou o AuC marca abaixo do mercado; nas duas leituras o NNM orgânico é menor que o reportado.</div>
-<div class="fonte">Fonte: XP RI, planilha Historical Financials 2T26 (Retail Client's Assets, Total Retail Net Inflow, mix por produto); CVM, informes diários de fundos (retorno mensal = ΔPL − captação + resgate sobre o PL anterior, fundos ex-FIC) dos fundos administrados pela XP Investimentos CCTVM excluídos os 13 de tesouraria; BCB SGS 12 (CDI); Ibovespa (B3, série do screening). Régua de mercado (bottom-up) = ações × Ibovespa + renda fixa × CDI + fundos × fundos administrados pela XP ex-tesouraria + outros × CDI, com o saldo parado em conta a zero (passivo com clientes do balanço da XP, 1,5-3,5% do AuC); pesos do mix da XP no início do trimestre. A régua anterior, com as classes de fundos da CVM, rendia acima do CDI e do Ibovespa (classe Ações +122% contra +96% do Ibovespa em 1T19-2T26). Valorização implícita inclui qualquer reclassificação de AuC.</div>
+<div class="fonte">Fonte: XP RI, planilha Historical Financials 3Q26 (Retail Client's Assets, Total Retail Net Inflow, mix por produto); CVM, informes diários de fundos (retorno mensal = ΔPL − captação + resgate sobre o PL anterior, fundos ex-FIC) dos fundos administrados pela XP Investimentos CCTVM excluídos os 13 de tesouraria; BCB SGS 12 (CDI); Ibovespa (B3, série do screening). Régua de mercado (bottom-up) = ações × Ibovespa + renda fixa × CDI + fundos × fundos administrados pela XP ex-tesouraria + outros × CDI, com o saldo parado em conta a zero (passivo com clientes do balanço da XP, 1,5-3,5% do AuC); pesos do mix da XP no início do trimestre. A régua anterior, com as classes de fundos da CVM, rendia acima do CDI e do Ibovespa (classe Ações +122% contra +96% do Ibovespa em 1T19-2T26). Valorização implícita inclui qualquer reclassificação de AuC.</div>
 </div></body></html>'''
 out = os.path.join(HERE, "auc_vs_fundos.html"); open(out, "w", encoding="utf-8").write(html); print("ok", out, "trimestres:", n, Q[0], Q[-1], "corr23", round(corr, 2), "gap", round(gm, 2))

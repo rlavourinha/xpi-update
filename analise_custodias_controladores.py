@@ -41,8 +41,8 @@ V["magalu_mtm_bi"] = mg_mtm; V["magalu_bloco_bi"] = mg_val; V["magalu_pct_auc"] 
 V["ajustada_pct"] = (V.valorizacao_ex_one_bi - mg_mtm) / (R.auc_ret.shift(1) - mg_val.shift(1).fillna(0)) * 100
 V["ajustada_pct"] = V.ajustada_pct.where(V.magalu_bloco_bi.shift(1).fillna(0) + V.magalu_mtm_bi != 0, V.nossa_conta_pct)
 V["gap_nossa"] = V.nossa_conta_pct - V.bottom_up_pct; V["gap_ajustada"] = V.ajustada_pct - V.bottom_up_pct
-V.loc["1Q19":"2Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
-print(V.loc["1Q19":"2Q26"].round(2).to_string())
+V.loc["1Q19":"3Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
+print(V.loc["1Q19":"3Q26"].round(2).to_string())
 
 # ---- grupo Ometto (entrada extraordinária de R$ 26 bi no 1T21, reorganização da Cosan de 08/03/21) ----
 # blocos limpos do VLMO: CSAN3 do controlador = 140,5 mi (562,7 mi após o desdobramento 1:4 de mai/21; constante até o follow-on de nov/25,
@@ -76,8 +76,8 @@ V["ometto_pct_auc"] = V.ometto_bloco_bi / R.auc_ret * 100
 V["ajustada_mo_pct"] = (V.valorizacao_ex_one_bi - V.magalu_mtm_bi - V.ometto_mtm_bi) / (R.auc_ret.shift(1) - V.magalu_bloco_bi.shift(1).fillna(0) - V.ometto_bloco_bi.shift(1).fillna(0)) * 100
 V["ajustada_mo_pct"] = V.ajustada_mo_pct.fillna(V.ajustada_pct)
 V["gap_ajust_mo"] = V.ajustada_mo_pct - V.bottom_up_pct
-V.loc["1Q19":"2Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
-print(V.loc["4Q20":"2Q26", ["nossa_conta_pct", "ajustada_pct", "ajustada_mo_pct", "bottom_up_pct", "magalu_mtm_bi", "ometto_mtm_bi", "ometto_bloco_bi", "ometto_pct_auc"]].round(2).to_string())
+V.loc["1Q19":"3Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
+print(V.loc["4Q20":"3Q26", ["nossa_conta_pct", "ajustada_pct", "ajustada_mo_pct", "bottom_up_pct", "magalu_mtm_bi", "ometto_mtm_bi", "ometto_bloco_bi", "ometto_pct_auc"]].round(2).to_string())
 
 # ---- referências: CDI (BCB SGS 12, via nowcast) e Ibovespa (série do screening: ../monitor-investimentos/data/macro.json), retorno trimestral % ----
 import json as _json
@@ -85,5 +85,5 @@ IB = pd.Series({pd.Timestamp(d): v for d, v in _json.load(open(os.path.join(HERE
 ibq = IB.resample("QE").last().pct_change() * 100
 ibq.index = [f"{d.quarter}Q{str(d.year)[2:]}" for d in ibq.index]
 V["cdi_pct"] = N["CDI"].reindex(V.index); V["ibov_pct"] = ibq.reindex(V.index)
-V.loc["1Q19":"2Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
+V.loc["1Q19":"3Q26"].to_csv(os.path.join(D, "xp_auc_valorizacao_ex_magalu.csv"))
 print(V.loc["1Q19":"2Q26", ["cdi_pct", "ibov_pct"]].round(2).T.to_string())

@@ -3,8 +3,9 @@
 Navegação: scroll-snap, setas/PageDown, pontos à direita, deep-link por hash (#s2). Sem JS externo."""
 import os, re, datetime as dt
 HERE = os.path.dirname(os.path.abspath(__file__))
-VERSAO = "v2.0"; DATA = dt.date.today().strftime("%d/%m/%Y")
+VERSAO = "v2.1"; DATA = dt.date.today().strftime("%d/%m/%Y")
 SLIDES = [  # (arquivo, título curto para os pontos)
+    ("slides/resultado_3t26.html", "Resultado 3T26"),
     ("slides/industria_fundos.html", "Indústria de fundos"),
     ("slides/fundos_concentracao.html", "Concentração"),
     ("slides/alocacao_clientes.html", "Alocação dos clientes"),
@@ -51,7 +52,7 @@ ol li{{border:1px solid var(--grid);border-radius:10px;padding:12px 14px;font-si
 </style></head><body>
 <nav class="dots" id="dots">{dots}</nav>
 <div class="deck" id="deck">
-<section class="sl" id="s1"><div class="capa"><div class="kicker">update · XP Inc. (XPBR31) · referência 2T26</div><h1>XPI Update</h1>
+<section class="sl" id="s1"><div class="capa"><div class="kicker">update · XP Inc. (XPBR31) · referência 3T26</div><h1>XPI Update</h1>
 <div class="sub">A indústria de fundos pela CVM, para onde a pessoa física levou o dinheiro, e os fundos onde mora a tesouraria da XP: quanto rende, o que carrega e para quem é contraparte.</div>
 <span class="chip">{VERSAO} · {DATA} · fontes primárias: CVM, SEC, RI</span><ol>{agenda}</ol></div></section>
 {frames}
